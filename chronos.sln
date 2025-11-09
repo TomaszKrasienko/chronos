@@ -1,0 +1,54 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{2BE25C38-CAE0-4495-810B-5BB14024C824}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "employees", "employees", "{540A6741-D41D-4C39-963A-CF618D38B351}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "chronos.employees.core", "src\employees\chronos.employees.core\chronos.employees.core.csproj", "{3D5869CB-0E23-40EB-A83E-2B84BE7E9889}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "chronos.employees.api", "chronos.employees.api\chronos.employees.api.csproj", "{DE0DB8FB-9680-4F53-9668-0E83F54F42B0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "time-loggers", "time-loggers", "{EB493115-3D4B-4E93-8F71-C4D6309239FF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "chronos.time-loggers.core", "src\time-loggers\chronos.time-loggers.core\chronos.time-loggers.core.csproj", "{5928BDFA-315F-452C-B8C1-6218EE0F57A2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "chronos.time-loggers.api", "src\time-loggers\chronos.time-loggers.api\chronos.time-loggers.api.csproj", "{B2D3C33E-6EEE-43A4-939C-6871ADA9EB7E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{540A6741-D41D-4C39-963A-CF618D38B351} = {2BE25C38-CAE0-4495-810B-5BB14024C824}
+		{3D5869CB-0E23-40EB-A83E-2B84BE7E9889} = {540A6741-D41D-4C39-963A-CF618D38B351}
+		{DE0DB8FB-9680-4F53-9668-0E83F54F42B0} = {540A6741-D41D-4C39-963A-CF618D38B351}
+		{EB493115-3D4B-4E93-8F71-C4D6309239FF} = {2BE25C38-CAE0-4495-810B-5BB14024C824}
+		{5928BDFA-315F-452C-B8C1-6218EE0F57A2} = {EB493115-3D4B-4E93-8F71-C4D6309239FF}
+		{B2D3C33E-6EEE-43A4-939C-6871ADA9EB7E} = {EB493115-3D4B-4E93-8F71-C4D6309239FF}
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3D5869CB-0E23-40EB-A83E-2B84BE7E9889}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3D5869CB-0E23-40EB-A83E-2B84BE7E9889}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3D5869CB-0E23-40EB-A83E-2B84BE7E9889}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3D5869CB-0E23-40EB-A83E-2B84BE7E9889}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DE0DB8FB-9680-4F53-9668-0E83F54F42B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE0DB8FB-9680-4F53-9668-0E83F54F42B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE0DB8FB-9680-4F53-9668-0E83F54F42B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE0DB8FB-9680-4F53-9668-0E83F54F42B0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5928BDFA-315F-452C-B8C1-6218EE0F57A2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5928BDFA-315F-452C-B8C1-6218EE0F57A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5928BDFA-315F-452C-B8C1-6218EE0F57A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5928BDFA-315F-452C-B8C1-6218EE0F57A2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B2D3C33E-6EEE-43A4-939C-6871ADA9EB7E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B2D3C33E-6EEE-43A4-939C-6871ADA9EB7E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B2D3C33E-6EEE-43A4-939C-6871ADA9EB7E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B2D3C33E-6EEE-43A4-939C-6871ADA9EB7E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
