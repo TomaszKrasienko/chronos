@@ -1,6 +1,0 @@
-@chronos.employees.api_HostAddress = http://localhost:5243
-
-GET {{chronos.employees.api_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###

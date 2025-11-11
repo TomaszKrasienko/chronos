@@ -1,41 +1,37 @@
+using chronos.time_loggers.core.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+builder.Services.AddCore(builder.Configuration);
 
 var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-}
-
+app.MapOpenApi();
+app.UseSwagger();
+app.UseSwaggerUI();
 app.UseHttpsRedirection();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
+app.MapPost(
+    "/api/time-loggers",
+    async (
+        CreateTimeLoggerRequestDto request,
+        ITimeLoggerService timeLoggerService,
+        CancellationToken cancellationToken) =>
     {
-        var forecast = Enumerable.Range(1, 5).Select(index =>
-                new WeatherForecast
-                (
-                    DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                    Random.Shared.Next(-20, 55),
-                    summaries[Random.Shared.Next(summaries.Length)]
-                ))
-            .ToArray();
-        return forecast;
+        var result = await timeLoggerService.CreateAsync(
+            request.TimeSpan,
+            request.TimeFrom,
+            request.TimeTo,
+            request.EmployeeId,
+            request.Topic,
+            request.Notes,
+            cancellationToken);
+
+        return Results.Ok(result.Id.ToString());
     })
-    .WithName("GetWeatherForecast");
+    .WithName("CreateTimeLogger")
+    .WithOpenApi();
 
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}

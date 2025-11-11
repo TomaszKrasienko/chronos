@@ -1,5 +1,5 @@
-using chronos.employees.core.DAL;
-using chronos.employees.core.DAL.Configuration;
+using chronos.time_loggers.core.DAL;
+using chronos.time_loggers.core.DAL.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
@@ -19,7 +19,7 @@ internal static class DalServicesExtensions
         this IServiceCollection services)
     {
         var mongoOptions = services.GetOptions<DalOptions>();
-        services.AddDbContext<EmployeesDbContext>(options => options.UseMongoDB(
+        services.AddDbContext<TimeLoggersDbContext>(options => options.UseMongoDB(
             mongoOptions.ConnectionString,
             mongoOptions.DatabaseName));
         return services;

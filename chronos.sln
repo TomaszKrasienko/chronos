@@ -6,12 +6,18 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{2BE25C38-CAE0-4495-810B-5BB14024C824}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "employees", "employees", "{540A6741-D41D-4C39-963A-CF618D38B351}"
+	ProjectSection(SolutionItems) = preProject
+		src\employees\Dockerfile = src\employees\Dockerfile
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "chronos.employees.core", "src\employees\chronos.employees.core\chronos.employees.core.csproj", "{3D5869CB-0E23-40EB-A83E-2B84BE7E9889}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "chronos.employees.api", "chronos.employees.api\chronos.employees.api.csproj", "{DE0DB8FB-9680-4F53-9668-0E83F54F42B0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "chronos.employees.api", "src\employees\chronos.employees.api\chronos.employees.api.csproj", "{DE0DB8FB-9680-4F53-9668-0E83F54F42B0}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "time-loggers", "time-loggers", "{EB493115-3D4B-4E93-8F71-C4D6309239FF}"
+	ProjectSection(SolutionItems) = preProject
+		src\time-loggers\Dockerfile = src\time-loggers\Dockerfile
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "chronos.time-loggers.core", "src\time-loggers\chronos.time-loggers.core\chronos.time-loggers.core.csproj", "{5928BDFA-315F-452C-B8C1-6218EE0F57A2}"
 EndProject

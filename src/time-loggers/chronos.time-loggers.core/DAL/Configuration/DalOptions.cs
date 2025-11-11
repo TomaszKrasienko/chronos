@@ -1,4 +1,4 @@
-namespace chronos.employees.core.DAL.Configuration;
+namespace chronos.time_loggers.core.DAL.Configuration;
 
 public sealed record DalOptions
 {

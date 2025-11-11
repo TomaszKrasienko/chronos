@@ -1,0 +1,44 @@
+@host_address = http://localhost:5243
+
+### Create supervisor employee
+# @name create_supervisor_employee
+POST {{host_address}}/api/employees
+Content-Type: application/json
+
+{
+  "firstName": "John",
+  "lastName": "Doe",
+  "supervisorId": null
+}
+
+###
+@supervisor_id = {{create_supervisor_employee.response.body.$}}
+
+### Create Employee with Supervisor
+# @name create_employee_with_supervisor
+POST {{host_address}}/api/employees
+Content-Type: application/json
+
+{
+  "firstName": "Jane",
+  "lastName": "Smith",
+  "supervisorId": "{{supervisor_id}}"
+}
+
+### Create Employee without Supervisor
+# @name create_employee_without_supervisor
+POST {{host_address}}/api/employees
+Content-Type: application/json
+
+{
+  "firstName": "Jane",
+  "lastName": "Smith",
+  "supervisorId": null
+}
+
+###
+@employee_without_supervisor_id = {{create_employee_without_supervisor.response.body.$}}
+
+
+### Assign Supervisor to Employee
+PATCH {{host_address}}/api/employees/{{employee_without_supervisor_id}}/supervisors/{{supervisor_id}}
