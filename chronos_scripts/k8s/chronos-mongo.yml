@@ -1,0 +1,61 @@
+# creating persistent volume claim for mongo db
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: chronos-mongo-pvc
+  namespace: chronos-namespace
+spec:
+
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+# creating deployment for mongo db
+# at this moment no statefulset is used because I don't know it yet
+# important: in the future add password and user
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chronos-mongo-deployment
+  namespace: chronos-namespace
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: chronos-mongo
+  template:
+    metadata:
+      labels:
+        app: chronos-mongo
+    spec:
+      containers:
+        - name: chronos-mongo
+          image: mongo:latest
+          ports:
+            - containerPort: 27017
+          volumeMounts:
+            - mountPath: /data/db
+              name: chronos-mongo-storage
+      volumes:
+        - name: chronos-mongo-storage
+          persistentVolumeClaim:
+            claimName: chronos-mongo-pvc
+
+---
+# creating service for mongo db
+apiVersion: v1
+kind: Service
+metadata:
+  name: chronos-mongo-service
+  namespace: chronos-namespace
+spec:
+  type: NodePort
+  ports:
+    - port: 27017
+      targetPort: 27017
+      nodePort: 30001
+  selector:
+    app: chronos-mongo

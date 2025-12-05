@@ -1,6 +1,14 @@
-@chronos.time_loggers.api_HostAddress = http://localhost:5072
-
-GET {{chronos.time_loggers.api_HostAddress}}/weatherforecast/
-Accept: application/json
+@chronos.time_loggers.api_HostAddress = http://localhost:5002
 
 ###
+POST {{chronos.time_loggers.api_HostAddress}}/api/time-loggers
+Content-Type: application/json
+
+{
+  "timeSpan": "00:15",
+  "timeFrom": null,
+  "timeTo": null,
+  "employeeId": "01KAM392SQ82YWWZTZW3Z183FQ",
+  "topic": "string",
+  "notes": null
+}

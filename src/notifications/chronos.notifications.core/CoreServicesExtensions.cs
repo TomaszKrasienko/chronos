@@ -1,17 +1,18 @@
-using chronos.employees.core.Services;
+using chronos.notifications.core.Configuration;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 // ReSharper disable once CheckNamespace
+namespace Microsoft.Extensions.DependencyInjection;
+
 public static class CoreServicesExtensions
 {
     public static IServiceCollection AddCore(
         this IServiceCollection services,
             IConfiguration configuration)
         => services
-            .AddDal(configuration)
-            .AddScoped<IEmployeeService, EmployeeService>();
+            .Configure<AppOptions>(configuration.GetSection(nameof(AppOptions)))
+            .AddHostedService<BannerService>();
 
     internal static T GetOptions<T>(this IServiceCollection services) where T : class
     {

@@ -1,9 +1,11 @@
+using chronos.shared.configuration.Extensions;
+using chronos.time_loggers.core.Communication;
 using chronos.time_loggers.core.Services;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 
 // ReSharper disable once CheckNamespace
+namespace Microsoft.Extensions.DependencyInjection;
+
 public static class CoreServicesExtensions
 {
     public static IServiceCollection AddCore(
@@ -11,11 +13,7 @@ public static class CoreServicesExtensions
             IConfiguration configuration)
         => services
             .AddDal(configuration)
-            .AddScoped<ITimeLoggerService, TimeLoggerService>();
-
-    internal static T GetOptions<T>(this IServiceCollection services) where T : class
-    {
-        var sp = services.BuildServiceProvider();
-        return sp.GetRequiredService<IOptions<T>>().Value;
-    }
+            .AddCommunication(configuration)
+            .AddScoped<ITimeLoggerService, TimeLoggerService>()
+            .AddBanner(configuration);
 }

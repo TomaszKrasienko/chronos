@@ -1,5 +1,6 @@
 using chronos.employees.core.DAL;
 using chronos.employees.core.DAL.Configuration;
+using chronos.shared.configuration.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 

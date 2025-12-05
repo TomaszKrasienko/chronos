@@ -1,0 +1,6 @@
+@chronos.time_reports.api_HostAddress = http://localhost:5226
+
+GET {{chronos.time_reports.api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

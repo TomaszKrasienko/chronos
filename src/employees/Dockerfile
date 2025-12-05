@@ -17,5 +17,5 @@ ENTRYPOINT ["dotnet", "chronos.employees.api.dll"]
 
 ENV TZ="Europe/Warsaw"
 
-EXPOSE 8081
-EXPOSE 8080
+EXPOSE 5001
+EXPOSE 5003

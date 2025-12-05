@@ -1,13 +1,16 @@
+using chronos.time_loggers.api.Exceptions;
 using chronos.time_loggers.core.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddExceptionHandling();
 builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddCore(builder.Configuration);
 
 var app = builder.Build();
+app.UseExceptionHandler();
 app.MapOpenApi();
 app.UseSwagger();
 app.UseSwaggerUI();

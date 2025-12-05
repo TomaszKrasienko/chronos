@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+option csharp_namespace = "chronos.employees";
+
+package employees;
+
+service EmployeeService {
+  rpc DoesExist (DoesExistRequest) returns (DoesExistResponse);
+}
+
+message DoesExistRequest {
+  string id = 1;
+}
+
+message DoesExistResponse {
+  bool value = 1;
+}

@@ -1,6 +1,7 @@
+using chronos.time_loggers.core.Communication.Sync;
 using chronos.time_loggers.core.DAL;
 using chronos.time_loggers.core.Domain;
-using Microsoft.EntityFrameworkCore;
+using chronos.time_loggers.core.Events;
 
 namespace chronos.time_loggers.core.Services;
 
@@ -17,7 +18,8 @@ public interface ITimeLoggerService
 }
 
 internal sealed class TimeLoggerService(
-    TimeLoggersDbContext dbContext) : ITimeLoggerService
+    TimeLoggersDbContext dbContext,
+    IEmployeesClient employeesClient) : ITimeLoggerService
 {
     public async Task<TimeLogger> CreateAsync(
         TimeSpan? timeSpan,
@@ -28,6 +30,15 @@ internal sealed class TimeLoggerService(
         string? notes,
         CancellationToken cancellationToken)
     {
+        var doesEmployeeExists = await employeesClient.AnyAsync(
+            employeeId,
+            cancellationToken);
+
+        if (!doesEmployeeExists)
+        {
+            throw new InvalidOperationException("Employee not found");
+        }
+        
         var timeLogger = TimeLogger.Create(
             Ulid.NewUlid(),
             timeSpan,
@@ -39,6 +50,14 @@ internal sealed class TimeLoggerService(
 
         await dbContext.TimeLoggers.AddAsync(timeLogger, cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
+
+        var @event = new TimeLogCreated(
+            timeLogger.Id,
+            timeLogger.TimeSpan,
+            timeLogger.EmployeeId,
+            timeLogger.Topic,
+            timeLogger.Notes);
+        
         return timeLogger;
     }
 }

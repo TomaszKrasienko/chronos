@@ -1,0 +1,34 @@
+@employees_host = http://localhost:5001
+@time_loggers_host = http://localhost:5002
+
+### Scenario: Create Employee and Time Logger
+
+### Step 1: Create Employee
+# @name create_employee
+POST {{employees_host}}/api/employees
+Content-Type: application/json
+
+{
+  "firstName": "John",
+  "lastName": "Doe",
+  "supervisorId": null
+}
+
+###
+@employee_id = {{create_employee.response.body.$}}
+
+### Step 2: Create Time Logger for Employee
+POST {{time_loggers_host}}/api/time-loggers
+Content-Type: application/json
+
+{
+  "timeSpan": "02:30",
+  "timeFrom": null,
+  "timeTo": null,
+  "employeeId": "{{employee_id}}",
+  "topic": "Development work",
+  "notes": "Working on REST API scenarios"
+}
+
+### Step 3: Get Employee Details
+GET {{employees_host}}/api/employees/{{employee_id}}

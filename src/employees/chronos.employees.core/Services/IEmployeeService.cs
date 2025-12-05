@@ -16,6 +16,10 @@ public interface IEmployeeService
         Ulid employeeId,
         Ulid supervisorId,
         CancellationToken cancellationToken);
+
+    Task<Employee?> GetByIdAsync(
+        Ulid employeeId,
+        CancellationToken cancellationToken);
 }
 
 internal sealed class EmployeeService(
@@ -65,5 +69,16 @@ internal sealed class EmployeeService(
         
         employee.ChangeSupervisor(supervisorId);
         await dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task<Employee?> GetByIdAsync(
+        Ulid employeeId,
+        CancellationToken cancellationToken)
+    {
+        return await dbContext.Employees
+            .AsNoTracking()
+            .SingleOrDefaultAsync(
+                e => e.Id == employeeId,
+                cancellationToken);
     }
 }

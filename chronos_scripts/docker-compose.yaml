@@ -1,0 +1,51 @@
+services:
+  chronos-mongo:
+    image: mongo
+    container_name: chronos-mongo
+    restart: unless-stopped
+    volumes:
+      - chronos-mongo:/data/db
+    ports:
+      - 10011:27017
+    networks:
+      - chronos-network
+
+  chronos-rabbitmq:
+    image: chronos_rabbit_mq:latest
+    container_name: chronos-rabbitmq
+    restart: unless-stopped
+    volumes:
+      - chronos-rabbitmq:/var/lib/rabbitmq
+    networks:
+      - chronos-network
+    ports:
+      - 10012:5672
+      - 10013:15672
+
+  # chronos-employee:
+  #   image: chronos-employees:latest
+  #   ports:
+  #     - 10001:8080
+  #   environment:
+  #     - ASPNETCORE_ENVIRONMENT=Release
+  #   networks:
+  #     - chronos-network
+
+  # chronos-time-loggers:
+  #   image: chronos-time-loggers:latest
+  #   ports:
+  #     - 10002:8080
+  #   environment:
+  #     - ASPNETCORE_ENVIRONMENT=Release
+  #   networks:
+  #     - chronos-network
+
+volumes:
+  chronos-mongo:
+    driver: local
+  chronos-rabbitmq:
+    driver: local
+
+networks:
+  chronos-network:
+    driver: bridge
