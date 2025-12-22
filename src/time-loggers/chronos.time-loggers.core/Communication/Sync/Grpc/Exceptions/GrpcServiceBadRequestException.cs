@@ -1,6 +1,11 @@
-using chronos.time_loggers.core.Exceptions;
+using System.Net;
+using chronos.shared.exceptions;
 
 namespace chronos.time_loggers.core.Communication.Sync.Grpc.Exceptions;
 
-public sealed class GrpcServiceBadRequestException(string code)
-    : ChronosException(code);
+public sealed class GrpcServiceBadRequestException(string message)
+    : ChronosException(
+        "grpc.bad_request",
+        message,
+        null,
+        HttpStatusCode.BadRequest);

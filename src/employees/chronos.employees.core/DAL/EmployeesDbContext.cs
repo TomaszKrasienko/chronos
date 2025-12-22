@@ -44,6 +44,12 @@ internal sealed class EmployeesDbContext(
 
         modelBuilder
             .Entity<Employee>()
+            .Property(x => x.Email)
+            .IsRequired()
+            .HasElementName("Email");
+
+        modelBuilder
+            .Entity<Employee>()
             .Property(x => x.SupervisorId)
             .HasElementName("SupervisorId")
             .HasConversion(ulidConverter);

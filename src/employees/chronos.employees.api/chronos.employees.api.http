@@ -6,13 +6,19 @@ POST {{host_address}}/api/employees
 Content-Type: application/json
 
 {
-  "firstName": "John",
-  "lastName": "Doe",
+  "firstName": "Joe",
+  "lastName": "Doen",
   "supervisorId": null
 }
 
 ###
 @supervisor_id = {{create_supervisor_employee.response.body.$}}
+
+###
+GET http://localhost:8080/api/employees/{{supervisor_id}}
+
+###
+GET {{host_address}}/api/employees/{{supervisor_id}}
 
 ### Create Employee with Supervisor
 # @name create_employee_with_supervisor

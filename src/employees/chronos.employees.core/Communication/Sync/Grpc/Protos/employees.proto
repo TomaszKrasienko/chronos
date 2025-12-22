@@ -6,6 +6,8 @@ package employees;
 
 service EmployeeService {
   rpc DoesExist (DoesExistRequest) returns (DoesExistResponse);
+  rpc GetById (GetByIdRequest) returns (GetByIdResponse);
+  rpc GetSubordinates (GetSubordinatesRequest) returns (GetSubordinatesResponse);
 }
 
 message DoesExistRequest {
@@ -14,4 +16,23 @@ message DoesExistRequest {
 
 message DoesExistResponse {
   bool value = 1;
+}
+
+message GetByIdRequest {
+  string id = 1;
+}
+
+message GetByIdResponse {
+  string id = 1;
+  string firstName = 2;
+  string lastName = 3;
+  string supervisorId = 4;
+}
+
+message GetSubordinatesRequest {
+  string supervisorId = 1;
+}
+
+message GetSubordinatesResponse {
+  repeated GetByIdResponse employees = 1;
 }

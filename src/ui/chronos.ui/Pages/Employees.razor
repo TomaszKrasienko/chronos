@@ -1,0 +1,143 @@
+@page "/employees"
+@inject IEmployeeService EmployeeService
+@inject AppStateService AppState
+
+<PageTitle>Employees</PageTitle>
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <h3>Employees Management</h3>
+        </div>
+        <div class="col-auto">
+            <button class="btn btn-primary" @onclick="OpenModal">
+                <i class="bi bi-plus-circle me-2"></i>Add Employee
+            </button>
+        </div>
+    </div>
+
+    <EmployeeModal IsOpen="_isModalOpen"
+                   IsOpenChanged="HandleModalChanged"
+                   OnEmployeeAdded="HandleEmployeeAdded"
+                   EmployeeToEdit="_employeeToEdit" />
+
+    @if (_isLoading && _employees.Count == 0)
+    {
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    }
+    else if (_errorMessage != null)
+    {
+        <div class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle me-2"></i>@_errorMessage
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Supervisor</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var employee in _employees)
+                    {
+                        <tr>
+                            <td><code>@employee.Id?.Substring(0, Math.Min(8, employee.Id.Length))</code></td>
+                            <td>@employee.FullName</td>
+                            <td>@employee.Email</td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(employee.SupervisorId))
+                                {
+                                    var supervisor = _employees.FirstOrDefault(e => e.Id == employee.SupervisorId);
+                                    @(supervisor?.FullName ?? "Unknown")
+                                }
+                                else
+                                {
+                                    <span class="text-muted">No supervisor</span>
+                                }
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary" @onclick="() => OpenEditModal(employee)">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@code {
+    private IReadOnlyCollection<Employee> _employees = [];
+    private bool _isModalOpen = false;
+    private bool _isLoading = false;
+    private string? _errorMessage;
+    private Employee? _employeeToEdit = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadEmployees();
+        AppState.OnChange += StateHasChanged;
+    }
+
+    private async Task LoadEmployees()
+    {
+        try
+        {
+            _isLoading = true;
+            _errorMessage = null;
+            _employees = await EmployeeService.GetAllAsync();
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Error loading employees: {ex.Message}";
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private void OpenModal()
+    {
+        _employeeToEdit = null; // Clear employee for create mode
+        _isModalOpen = true;
+    }
+
+    private void OpenEditModal(Employee employee)
+    {
+        _employeeToEdit = employee;
+        _isModalOpen = true;
+    }
+
+    private void HandleModalChanged(bool isOpen)
+    {
+        _isModalOpen = isOpen;
+        if (!isOpen)
+        {
+            _employeeToEdit = null; // Clear when modal closes
+        }
+    }
+
+    private async Task HandleEmployeeAdded()
+    {
+        await LoadEmployees();
+    }
+
+    public void Dispose()
+    {
+        AppState.OnChange -= StateHasChanged;
+    }
+}

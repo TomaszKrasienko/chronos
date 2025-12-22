@@ -24,15 +24,14 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Communication\Sync\Http\DTOs\" />
-    </ItemGroup>
-
-    <ItemGroup>
         <Protobuf Include="Communication/Sync/Grpc/Protos/employees.proto" GrpcServices="Client" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\..\shared\chronos.shared.configuration\chronos.shared.configuration.csproj" />
+      <ProjectReference Include="..\..\shared\chronos.shared.exceptions\chronos.shared.exceptions.csproj" />
+      <ProjectReference Include="..\..\shared\chronos.shared.messaging.rabbit-mq\chronos.shared.messaging.rabbit-mq.csproj" />
+      <ProjectReference Include="..\..\shared\chronos.shared.messaging\chronos.shared.messaging.csproj" />
     </ItemGroup>
 
 </Project>

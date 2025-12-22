@@ -1,4 +1,3 @@
-using chronos.shared.configuration.Extensions;
 using chronos.time_loggers.core.Communication.Sync;
 using chronos.time_loggers.core.Communication.Sync.Http;
 using chronos.time_loggers.core.Communication.Sync.Http.Clients;

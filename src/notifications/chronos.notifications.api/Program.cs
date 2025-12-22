@@ -1,40 +1,48 @@
+using chronos.notifications.core.Services;
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
 
 builder.Services.AddOpenApi();
 builder.Services.AddCore(builder.Configuration);
 
 var app = builder.Build();
+app.UseCors("AllowAll");
+app.UseChronosExceptionHandling();
+app.MapOpenApi();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-}
+app.MapGet(
+    "/api/notification-messages/unread",
+    async (
+        HttpContext context,
+        INotificationMessagesService notificationMessagesService,
+        CancellationToken cancellationToken) =>
+    {
+        var employeeId = context.GetEmployeeContext();
+
+        if (employeeId is null)
+        {
+            return Results.Unauthorized();
+        }
+
+        var messages = await notificationMessagesService
+            .GetUnreadAsync(
+                employeeId.Value,
+                cancellationToken);
+
+        return Results.Ok(messages);
+    })
+    .WithName("GetUnreadNotificationsMessages")
+    .WithOpenApi();
 
 app.UseHttpsRedirection();
-
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-    {
-        var forecast = Enumerable.Range(1, 5).Select(index =>
-                new WeatherForecast
-                (
-                    DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                    Random.Shared.Next(-20, 55),
-                    summaries[Random.Shared.Next(summaries.Length)]
-                ))
-            .ToArray();
-        return forecast;
-    })
-    .WithName("GetWeatherForecast");
-
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}

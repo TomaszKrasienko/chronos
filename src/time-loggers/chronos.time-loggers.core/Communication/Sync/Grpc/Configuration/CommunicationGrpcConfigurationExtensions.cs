@@ -1,5 +1,4 @@
 using chronos.employees;
-using chronos.shared.configuration.Extensions;
 using chronos.time_loggers.core.Communication.Sync;
 using chronos.time_loggers.core.Communication.Sync.Grpc;
 using chronos.time_loggers.core.Communication.Sync.Grpc.Configuration.Options;

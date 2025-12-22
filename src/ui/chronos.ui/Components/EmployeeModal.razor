@@ -1,0 +1,266 @@
+@inject IEmployeeService EmployeeService
+
+@if (IsOpen)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        @if (IsEditMode)
+                        {
+                            <i class="bi bi-pencil-fill me-2"></i><text>Edit Employee</text>
+                        }
+                        else
+                        {
+                            <i class="bi bi-person-plus-fill me-2"></i><text>Add Employee</text>
+                        }
+                    </h5>
+                    <button type="button" class="btn-close" @onclick="Close" aria-label="Close"></button>
+                </div>
+
+                <EditForm Model="@_newEmployee" OnValidSubmit="@HandleSubmit">
+                    <DataAnnotationsValidator />
+
+                    <div class="modal-body">
+                        @if (!string.IsNullOrEmpty(_errorMessage))
+                        {
+                            <div class="alert alert-danger">
+                                <i class="bi bi-exclamation-triangle me-2"></i>@_errorMessage
+                            </div>
+                        }
+
+                        @if (!string.IsNullOrEmpty(_successMessage))
+                        {
+                            <div class="alert alert-success">
+                                <i class="bi bi-check-circle me-2"></i>@_successMessage
+                            </div>
+                        }
+
+                        <ValidationSummary class="text-danger mb-3" />
+
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="bi bi-person me-2"></i>First Name
+                            </label>
+                            <InputText class="form-control" @bind-Value="_newEmployee.FirstName" placeholder="John" disabled="@IsEditMode" />
+                            <ValidationMessage For="@(() => _newEmployee.FirstName)" class="text-danger" />
+                            @if (IsEditMode)
+                            {
+                                <small class="form-text text-muted">Cannot be changed in edit mode</small>
+                            }
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="bi bi-person me-2"></i>Last Name
+                            </label>
+                            <InputText class="form-control" @bind-Value="_newEmployee.LastName" placeholder="Doe" disabled="@IsEditMode" />
+                            <ValidationMessage For="@(() => _newEmployee.LastName)" class="text-danger" />
+                            @if (IsEditMode)
+                            {
+                                <small class="form-text text-muted">Cannot be changed in edit mode</small>
+                            }
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="bi bi-envelope me-2"></i>Email
+                            </label>
+                            <InputText type="email" class="form-control" @bind-Value="_newEmployee.Email" placeholder="john.doe@example.com" disabled="@IsEditMode" />
+                            <ValidationMessage For="@(() => _newEmployee.Email)" class="text-danger" />
+                            @if (IsEditMode)
+                            {
+                                <small class="form-text text-muted">Cannot be changed in edit mode</small>
+                            }
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="bi bi-person-check me-2"></i>Supervisor (Optional)
+                            </label>
+                            @if (_loadingEmployees)
+                            {
+                                <div class="spinner-border spinner-border-sm" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            }
+                            else
+                            {
+                                <InputSelect class="form-select" @bind-Value="_newEmployee.SupervisorId">
+                                    <option value="">-- No Supervisor --</option>
+                                    @foreach (var employee in _employees)
+                                    {
+                                        <option value="@employee.Id">@employee.FullName (@employee.Email)</option>
+                                    }
+                                </InputSelect>
+                            }
+                            <small class="form-text text-muted">
+                                Select a supervisor for this employee if applicable.
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @onclick="Close" disabled="@_isSubmitting">
+                            Cancel
+                        </button>
+                        <button type="submit" class="btn btn-primary" disabled="@_isSubmitting">
+                            @if (_isSubmitting)
+                            {
+                                <span class="spinner-border spinner-border-sm me-2"></span>
+                            }
+                            @if (IsEditMode)
+                            {
+                                <i class="bi bi-save me-2"></i><text>Update Employee</text>
+                            }
+                            else
+                            {
+                                <i class="bi bi-save me-2"></i><text>Add Employee</text>
+                            }
+                        </button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public bool IsOpen { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> IsOpenChanged { get; set; }
+
+    [Parameter]
+    public EventCallback OnEmployeeAdded { get; set; }
+
+    [Parameter]
+    public Employee? EmployeeToEdit { get; set; }
+
+    private CreateEmployeeRequest _newEmployee = new();
+    private IReadOnlyCollection<Employee> _employees = [];
+    private bool _isSubmitting = false;
+    private bool _loadingEmployees = false;
+    private string? _errorMessage;
+    private string? _successMessage;
+    private bool IsEditMode => EmployeeToEdit != null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadEmployees();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (IsOpen)
+        {
+            // Reload employees list when modal opens
+            await LoadEmployees();
+
+            if (IsEditMode && EmployeeToEdit != null)
+            {
+                // Populate form with existing employee data for editing
+                _newEmployee = new CreateEmployeeRequest
+                {
+                    FirstName = EmployeeToEdit.FirstName,
+                    LastName = EmployeeToEdit.LastName,
+                    Email = EmployeeToEdit.Email,
+                    SupervisorId = EmployeeToEdit.SupervisorId
+                };
+            }
+            else
+            {
+                // Reset form for new employee
+                _newEmployee = new CreateEmployeeRequest();
+            }
+
+            _errorMessage = null;
+            _successMessage = null;
+        }
+    }
+
+    private async Task LoadEmployees()
+    {
+        try
+        {
+            _loadingEmployees = true;
+            _employees = await EmployeeService.GetAllAsync();
+        }
+        catch (Exception)
+        {
+            // Silently fail, employees list will be empty
+        }
+        finally
+        {
+            _loadingEmployees = false;
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        try
+        {
+            _isSubmitting = true;
+            _errorMessage = null;
+            _successMessage = null;
+
+            if (IsEditMode && EmployeeToEdit != null)
+            {
+                // Edit mode: only update supervisor if it changed
+                var oldSupervisorId = EmployeeToEdit.SupervisorId;
+                var newSupervisorId = _newEmployee.SupervisorId;
+
+                if (oldSupervisorId != newSupervisorId)
+                {
+                    if (!string.IsNullOrEmpty(newSupervisorId))
+                    {
+                        await EmployeeService.AssignSupervisorAsync(EmployeeToEdit.Id!, newSupervisorId);
+                        _successMessage = "Supervisor assigned successfully!";
+                    }
+                    else
+                    {
+                        _errorMessage = "Cannot remove supervisor. Please assign a new supervisor instead.";
+                        return;
+                    }
+                }
+                else
+                {
+                    _successMessage = "No changes to save.";
+                }
+            }
+            else
+            {
+                // Create mode
+                await EmployeeService.CreateAsync(_newEmployee);
+                _successMessage = "Employee added successfully!";
+            }
+
+            // Wait a moment to show success message
+            await Task.Delay(1000);
+
+            // Notify parent component
+            await OnEmployeeAdded.InvokeAsync();
+
+            // Close modal
+            await Close();
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = IsEditMode
+                ? $"Error updating employee: {ex.Message}"
+                : $"Error adding employee: {ex.Message}";
+        }
+        finally
+        {
+            _isSubmitting = false;
+        }
+    }
+
+    private async Task Close()
+    {
+        IsOpen = false;
+        await IsOpenChanged.InvokeAsync(false);
+    }
+}

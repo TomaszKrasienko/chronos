@@ -1,4 +1,7 @@
 using chronos.notifications.core.Configuration;
+using chronos.notifications.core.Events;
+using chronos.notifications.core.Services;
+using chronos.notifications.core.Services.NotificationSenders;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 
@@ -12,11 +15,13 @@ public static class CoreServicesExtensions
             IConfiguration configuration)
         => services
             .Configure<AppOptions>(configuration.GetSection(nameof(AppOptions)))
-            .AddHostedService<BannerService>();
-
-    internal static T GetOptions<T>(this IServiceCollection services) where T : class
-    {
-        var sp = services.BuildServiceProvider();
-        return sp.GetRequiredService<IOptions<T>>().Value;
-    }
+            .AddHostedService<BannerService>()
+            .AddSingleton(TimeProvider.System)
+            .AddDal(configuration)
+            .AddRabbitMq(configuration)
+            .AddScoped<INotificationSender<TimeLogCreated>, TimeLogCreatedNotificationSender>()
+            .AddScoped<INotificationSender<EmployeeCreated>, EmployeeCreatedNotificationSender>()
+            .AddSingleton<INotificationSenderFactory, NotificationSenderFactory>()
+            .AddScoped<IContactsServices, ContactsService>()
+            .AddScoped<INotificationMessagesService, NotificationMessagesService>();
 }

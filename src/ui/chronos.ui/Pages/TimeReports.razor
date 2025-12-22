@@ -1,0 +1,136 @@
+@page "/time-reports"
+@inject ITimeReportService TimeReportService
+@inject AppStateService AppState
+@implements IDisposable
+
+<PageTitle>Time Reports</PageTitle>
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <h3>Time Reports</h3>
+        </div>
+    </div>
+
+    @if (isLoading)
+    {
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    }
+    else if (errorMessage != null)
+    {
+        <div class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle me-2"></i>@errorMessage
+        </div>
+    }
+    else
+    {
+        var filteredReports = timeReports.AsEnumerable();
+
+        // Filter by selected employee if in Employee view or if employee selected
+        if (!string.IsNullOrEmpty(AppState.CurrentEmployeeId))
+        {
+            filteredReports = filteredReports.Where(r => r.EmployeeId == AppState.CurrentEmployeeId);
+        }
+
+        <div class="row">
+            @foreach (var report in filteredReports)
+            {
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="bi bi-person-circle me-2"></i>@report.EmployeeName
+                            </h5>
+                            <h6 class="card-subtitle mb-3 text-muted">
+                                <i class="bi bi-calendar me-2"></i>@report.Period
+                            </h6>
+
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="text-muted">Total Hours:</span>
+                                    <span class="fs-4 fw-bold text-primary">@report.TotalHours.ToString("F1")h</span>
+                                </div>
+                            </div>
+
+                            <hr />
+
+                            <div class="row text-center">
+                                <div class="col-4">
+                                    <div class="text-success fw-bold">@report.AcceptedEntries</div>
+                                    <small class="text-muted">Accepted</small>
+                                </div>
+                                <div class="col-4">
+                                    <div class="text-warning fw-bold">@report.PendingEntries</div>
+                                    <small class="text-muted">Pending</small>
+                                </div>
+                                <div class="col-4">
+                                    <div class="text-danger fw-bold">@report.RejectedEntries</div>
+                                    <small class="text-muted">Rejected</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <button class="btn btn-sm btn-outline-primary w-100">
+                                <i class="bi bi-file-earmark-text me-2"></i>View Details
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        @if (!filteredReports.Any())
+        {
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle me-2"></i>
+                @if (string.IsNullOrEmpty(AppState.CurrentEmployeeId))
+                {
+                    <span>Please select an employee to view reports.</span>
+                }
+                else
+                {
+                    <span>No time reports available for selected employee.</span>
+                }
+            </div>
+        }
+    }
+</div>
+
+@code {
+    private List<TimeReport> timeReports = new();
+    private bool isLoading = false;
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadTimeReports();
+        AppState.OnChange += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        AppState.OnChange -= StateHasChanged;
+    }
+
+    private async Task LoadTimeReports()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+            timeReports = await TimeReportService.GetAllAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error loading time reports: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}

@@ -1,8 +1,8 @@
-using chronos.time_loggers.core.Communication.Sync.Configuration;
+// Sync configuration is now in DI namespace
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 
-namespace chronos.time_loggers.core.Communication;
+// ReSharper disable once CheckNamespace
+namespace Microsoft.Extensions.DependencyInjection;
 
 internal static class CommunicationConfigurationExtensions
 {

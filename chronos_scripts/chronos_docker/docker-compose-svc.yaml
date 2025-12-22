@@ -1,0 +1,42 @@
+services:
+  chronos-employee:
+    container_name: chronos_svc_employee
+    image: chronos/employees:latest
+    platform: linux/amd64
+    ports:
+      - 11001:8080
+      - 11002:8081
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${DOTNET_ENVIRONMENT}
+      # Kestrel
+      Kestrel__Endpoints__Http__Url: ${EMPLOYEES_KESTREL_HTTP_URL}
+      Kestrel__Endpoints__Http__Protocols: Http1
+      Kestrel__Endpoints__Grpc__Url: ${EMPLOYEES_KESTREL_GRPC_URL}
+      Kestrel__Endpoints__Grpc__Protocols: Http2
+      # DalOptions
+      DalOptions__ConnectionString: ${EMPLOYEES_DAL_OPTIONS_CONNECTION_STRING}
+      DalOptions__DatabaseName: ${EMPLOYEES_DAL_OPTIONS_DATABASE_NAME}
+      # GrpcCommunicationOptions
+      GrpcCommunicationOptions__Enabled: ${EMPLOYEES_GRPC_COMMUNICATION_OPTIONS_ENABLED}
+      # RabbitMqOptions
+      RabbitMqOptions__HostName: ${EMPLOYEES_RABBIT_MQ_HOSTNAME}
+      RabbitMqOptions__Port: ${EMPLOYEES_RABBIT_MQ_PORT}
+      RabbitMqOptions__Username: ${EMPLOYEES_RABBIT_MQ_USERNAME}
+      RabbitMqOptions__Password: ${EMPLOYEES_RABBIT_MQ_PASSWORD}
+      RabbitMqOptions__VirtualHost: ${EMPLOYEES_RABBIT_MQ_VIRTUAL_HOST}
+    networks:
+      - chronos-network
+
+  # chronos-time-loggers:
+  #   container_name: chronos_svc_time_loggers
+  #   image: chronos-time-loggers:latest
+  #   ports:
+  #     - 10002:8080
+  #   environment:
+  #     - ASPNETCORE_ENVIRONMENT=Release
+  #   networks:
+  #     - chronos-network
+
+networks:
+  chronos-network:
+    driver: bridge

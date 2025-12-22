@@ -1,6 +1,6 @@
 using chronos.employees.core.Communication.Sync.Grpc;
 using chronos.employees.core.Communication.Sync.Grpc.Configuration;
-using chronos.shared.configuration.Extensions;
+using chronos.employees.core.Communication.Sync.Grpc.Interceptors;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
@@ -21,7 +21,10 @@ public static class CommunicationGrpcServicesExtensions
 
         if (options.Enabled)
         {
-            services.AddGrpc();
+            services.AddGrpc(grpcOptions =>
+            {
+                grpcOptions.Interceptors.Add<ExceptionInterceptor>();
+            });
         }
 
         return services;

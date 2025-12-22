@@ -1,4 +1,3 @@
-using chronos.shared.configuration.Extensions;
 using chronos.time_loggers.core.Communication;
 using chronos.time_loggers.core.Services;
 using Microsoft.Extensions.Configuration;
@@ -15,5 +14,6 @@ public static class CoreServicesExtensions
             .AddDal(configuration)
             .AddCommunication(configuration)
             .AddScoped<ITimeLoggerService, TimeLoggerService>()
+            .AddRabbitMq(configuration)
             .AddBanner(configuration);
 }

@@ -18,4 +18,8 @@
       <ProjectReference Include="..\chronos.employees.core\chronos.employees.core.csproj" />
     </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\shared\chronos.shared.exceptions\chronos.shared.exceptions.csproj" />
+  </ItemGroup>
+
 </Project>

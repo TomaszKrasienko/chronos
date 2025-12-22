@@ -16,6 +16,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\chronos.time-loggers.core\chronos.time-loggers.core.csproj" />
+      <ProjectReference Include="..\..\shared\chronos.shared.identity-context\chronos.shared.identity-context.csproj" />
     </ItemGroup>
 
     <ItemGroup>
@@ -23,5 +24,9 @@
         <Link>.dockerignore</Link>
       </Content>
     </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\shared\chronos.shared.exceptions\chronos.shared.exceptions.csproj" />
+  </ItemGroup>
 
 </Project>

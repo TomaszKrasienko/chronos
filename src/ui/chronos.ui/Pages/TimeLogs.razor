@@ -1,0 +1,309 @@
+@page "/time-logs"
+@inject ITimeLogService TimeLogService
+@inject IEmployeeService EmployeeService
+@inject AppStateService AppState
+
+<PageTitle>Time Logs</PageTitle>
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <h3>Time Logs</h3>
+        </div>
+        <div class="col-auto">
+            <button class="btn btn-primary" @onclick="ShowAddForm" disabled="@string.IsNullOrEmpty(AppState.CurrentEmployeeId)">
+                <i class="bi bi-plus-circle me-2"></i>Add Time Log
+            </button>
+        </div>
+    </div>
+
+    @if (showAddForm)
+    {
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Add New Time Log</h5>
+                <EditForm Model="@newTimeLog" OnValidSubmit="@HandleCreateTimeLog">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary class="text-danger" />
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Topic</label>
+                            <InputText class="form-control" @bind-Value="newTimeLog.Topic" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Hours</label>
+                            <InputNumber class="form-control" @bind-Value="hoursInput" min="0.5" max="24" step="0.5" />
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Notes (Optional)</label>
+                        <InputTextArea class="form-control" rows="3" @bind-Value="newTimeLog.Notes" />
+                    </div>
+
+                    <div>
+                        <button type="submit" class="btn btn-success me-2" disabled="@isLoading">
+                            @if (isLoading)
+                            {
+                                <span class="spinner-border spinner-border-sm me-2"></span>
+                            }
+                            Save
+                        </button>
+                        <button type="button" class="btn btn-secondary" @onclick="CancelAddForm">Cancel</button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    }
+
+    @if (isLoading && (myTimeLogs == null && groupedTimeLogs == null))
+    {
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    }
+    else if (errorMessage != null)
+    {
+        <div class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle me-2"></i>@errorMessage
+        </div>
+    }
+    else
+    {
+        @if ((AppState.IsSupervisor || AppState.IsAdmin) && groupedTimeLogs != null && groupedTimeLogs.Any())
+        {
+            <h4 class="mb-3">Subordinates Time Logs</h4>
+            @foreach (var employeeGroup in groupedTimeLogs)
+            {
+                <div class="card mb-3">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">@employeeGroup.FirstName @employeeGroup.LastName</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Topic</th>
+                                        <th>Hours</th>
+                                        <th>Notes</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var log in employeeGroup.TimeLogs)
+                                    {
+                                        <tr>
+                                            <td>@log.Topic</td>
+                                            <td>@log.FormattedHours</td>
+                                            <td>@(log.Notes ?? "-")</td>
+                                            <td>
+                                                <span class="badge @log.StatusBadgeClass">@log.Status</span>
+                                            </td>
+                                            <td>
+                                                @if (log.Status == "Pending" && AppState.CurrentEmployeeId != null)
+                                                {
+                                                    <button class="btn btn-sm btn-success me-1" @onclick="() => HandleAccept(log.Id)" disabled="@isLoading">
+                                                        <i class="bi bi-check-circle me-1"></i>Accept
+                                                    </button>
+                                                    <button class="btn btn-sm btn-danger" @onclick="() => HandleReject(log.Id)" disabled="@isLoading">
+                                                        <i class="bi bi-x-circle me-1"></i>Reject
+                                                    </button>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+
+        @if (myTimeLogs != null && myTimeLogs.Any())
+        {
+            <h4 class="mb-3">My Time Logs</h4>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Topic</th>
+                            <th>Hours</th>
+                            <th>Notes</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var log in myTimeLogs)
+                        {
+                            <tr>
+                                <td>@log.Topic</td>
+                                <td>@log.FormattedHours</td>
+                                <td>@(log.Notes ?? "-")</td>
+                                <td>
+                                    <span class="badge @log.StatusBadgeClass">@log.Status</span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+
+        @if ((myTimeLogs == null || !myTimeLogs.Any()) && (groupedTimeLogs == null || !groupedTimeLogs.Any()))
+        {
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle me-2"></i>No time logs found. Add your first time log!
+            </div>
+        }
+    }
+</div>
+
+@code {
+    private List<TimeLog>? myTimeLogs;
+    private List<EmployeeTimeLogs>? groupedTimeLogs;
+    private CreateTimeLogRequest newTimeLog = new();
+    private bool showAddForm = false;
+    private bool isLoading = false;
+    private string? errorMessage;
+    private double hoursInput = 8.0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadTimeLogs();
+        AppState.OnChange += async () => await LoadTimeLogs();
+    }
+
+    private async Task LoadTimeLogs()
+    {
+        if (string.IsNullOrEmpty(AppState.CurrentEmployeeId))
+        {
+            return;
+        }
+
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+            myTimeLogs = null;
+            groupedTimeLogs = null;
+
+            if (AppState.IsSupervisor || AppState.IsAdmin)
+            {
+                // Load grouped time logs for supervisor
+                groupedTimeLogs = await TimeLogService.GetSubordinatesTimeLogsAsync(
+                    AppState.CurrentEmployeeId);
+            }
+            
+            // Load time logs for employee
+            myTimeLogs = await TimeLogService.GetMyTimeLogsAsync(
+                AppState.CurrentEmployeeId);
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error loading time logs: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private void ShowAddForm()
+    {
+        newTimeLog = new CreateTimeLogRequest();
+        hoursInput = 8.0;
+        showAddForm = true;
+    }
+
+    private void CancelAddForm()
+    {
+        showAddForm = false;
+        newTimeLog = new CreateTimeLogRequest();
+    }
+
+    private async Task HandleCreateTimeLog()
+    {
+        if (string.IsNullOrEmpty(AppState.CurrentEmployeeId))
+        {
+            errorMessage = "Please select an employee first";
+            return;
+        }
+
+        try
+        {
+            isLoading = true;
+            newTimeLog.TimeSpan = TimeSpan.FromHours(hoursInput);
+            await TimeLogService.CreateAsync(newTimeLog, AppState.CurrentEmployeeId);
+            await LoadTimeLogs();
+            CancelAddForm();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error creating time log: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task HandleAccept(string timeLogId)
+    {
+        if (string.IsNullOrEmpty(AppState.CurrentEmployeeId))
+        {
+            errorMessage = "Please select a supervisor first";
+            return;
+        }
+
+        try
+        {
+            isLoading = true;
+            await TimeLogService.AcceptAsync(timeLogId, AppState.CurrentEmployeeId);
+            await LoadTimeLogs();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error accepting time log: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task HandleReject(string timeLogId)
+    {
+        if (string.IsNullOrEmpty(AppState.CurrentEmployeeId))
+        {
+            errorMessage = "Please select a supervisor first";
+            return;
+        }
+
+        try
+        {
+            isLoading = true;
+            await TimeLogService.RejectAsync(timeLogId, AppState.CurrentEmployeeId);
+            await LoadTimeLogs();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error rejecting time log: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    public void Dispose()
+    {
+        AppState.OnChange -= async () => await LoadTimeLogs();
+    }
+}

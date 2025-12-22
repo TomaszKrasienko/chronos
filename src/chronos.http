@@ -31,4 +31,7 @@ Content-Type: application/json
 }
 
 ### Step 3: Get Employee Details
+GET {{employees_host}}/api/employees
+
+### Step 3: Get Employee Details
 GET {{employees_host}}/api/employees/{{employee_id}}

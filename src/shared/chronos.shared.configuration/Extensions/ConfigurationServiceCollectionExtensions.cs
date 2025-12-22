@@ -1,9 +1,9 @@
 using chronos.shared.configuration.Options;
 using chronos.shared.configuration.Services;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 
-namespace chronos.shared.configuration.Extensions;
+// ReSharper disable once CheckNamespace
+namespace Microsoft.Extensions.DependencyInjection;
 
 public static class ConfigurationServiceCollectionExtensions
 {
@@ -12,5 +12,6 @@ public static class ConfigurationServiceCollectionExtensions
         IConfiguration configuration)
         => services
             .Configure<AppOptions>(configuration.GetSection(nameof(AppOptions)))
+            .AddSingleton<InstanceOptions>()
             .AddHostedService<BannerService>();
 }

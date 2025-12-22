@@ -16,6 +16,10 @@ internal sealed class TimeLoggersDbContext(
             v => v.ToString(),
             v => Ulid.Parse(v));
 
+        var timeLoggerStatusConverter = new ValueConverter<TimeLoggerStatus, string>(
+            v => v.Value,
+            v => TimeLoggerStatus.FromValue(v));
+
         modelBuilder
             .Entity<TimeLogger>()
             .ToCollection("time_loggers");
@@ -53,5 +57,12 @@ internal sealed class TimeLoggersDbContext(
             .Entity<TimeLogger>()
             .Property(x => x.Notes)
             .HasElementName("Notes");
+
+        modelBuilder
+            .Entity<TimeLogger>()
+            .Property(x => x.Status)
+            .IsRequired()
+            .HasElementName("Status")
+            .HasConversion(timeLoggerStatusConverter);
     }
 }

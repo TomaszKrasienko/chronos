@@ -1,0 +1,46 @@
+@inject Services.AppStateService AppState
+
+<div class="dropdown">
+    <button class="btn btn-outline-light dropdown-toggle" type="button" id="contextSwitcher" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="bi bi-person-circle me-2"></i>
+        @GetContextLabel()
+    </button>
+    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="contextSwitcher">
+        <li>
+            <a class="dropdown-item @GetActiveClass(Models.AppContext.Employee)" href="#" @onclick="@(() => SwitchContext(Models.AppContext.Employee))">
+                <i class="bi bi-person me-2"></i>
+                Employee View
+            </a>
+        </li>
+        <li>
+            <a class="dropdown-item @GetActiveClass(Models.AppContext.Supervisor)" href="#" @onclick="@(() => SwitchContext(Models.AppContext.Supervisor))">
+                <i class="bi bi-people me-2"></i>
+                Supervisor View
+            </a>
+        </li>
+        <li>
+            <a class="dropdown-item @GetActiveClass(Models.AppContext.Admin)" href="#" @onclick="@(() => SwitchContext(Models.AppContext.Admin))">
+                <i class="bi bi-shield-check me-2"></i>
+                Admin View
+            </a>
+        </li>
+    </ul>
+</div>
+
+@code {
+    private void SwitchContext(Models.AppContext context)
+    {
+        AppState.CurrentContext = context;
+    }
+
+    private string GetContextLabel() => AppState.CurrentContext switch
+    {
+        Models.AppContext.Employee => "Employee View",
+        Models.AppContext.Supervisor => "Supervisor View",
+        Models.AppContext.Admin => "Admin View",
+        _ => "Unknown"
+    };
+
+    private string GetActiveClass(Models.AppContext context) =>
+        AppState.CurrentContext == context ? "active" : "";
+}

@@ -1,4 +1,3 @@
-using chronos.shared.configuration.Extensions;
 using chronos.time_loggers.core.DAL;
 using chronos.time_loggers.core.DAL.Configuration;
 using Microsoft.EntityFrameworkCore;

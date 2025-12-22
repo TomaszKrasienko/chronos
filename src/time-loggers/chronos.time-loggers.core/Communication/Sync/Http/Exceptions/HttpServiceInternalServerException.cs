@@ -1,6 +1,11 @@
-using chronos.time_loggers.core.Exceptions;
+using System.Net;
+using chronos.shared.exceptions;
 
 namespace chronos.time_loggers.core.Communication.Sync.Http.Exceptions;
 
-public sealed class HttpServiceInternalServerException(string code)
-    : ChronosException(code);
+public sealed class HttpServiceInternalServerException(string message)
+    : ChronosException(
+        "http.internal_server_error",
+        message,
+        null,
+        HttpStatusCode.InternalServerError);

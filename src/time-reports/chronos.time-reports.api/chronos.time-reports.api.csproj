@@ -16,4 +16,8 @@
       <ProjectReference Include="..\chronos.time-reports.core\chronos.time-reports.core.csproj" />
     </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\shared\chronos.shared.exceptions\chronos.shared.exceptions.csproj" />
+  </ItemGroup>
+
 </Project>

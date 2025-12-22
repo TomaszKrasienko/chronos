@@ -1,0 +1,35 @@
+services:
+  chronos-mongo:
+    image: mongo
+    container_name: chronos_env_mongo
+    restart: unless-stopped
+    volumes:
+      - chronos-mongo:/data/db
+    ports:
+      - 10011:27017
+    networks:
+      - chronos-network
+
+  chronos-rabbitmq:
+    build:
+      context: ../rabbitmq
+      dockerfile: Dockerfile
+    container_name: chronos_env_rabbitmq
+    restart: unless-stopped
+    volumes:
+      - chronos-rabbitmq:/var/lib/rabbitmq
+    networks:
+      - chronos-network
+    ports:
+      - 10012:5672
+      - 10013:15672
+
+volumes:
+  chronos-mongo:
+    driver: local
+  chronos-rabbitmq:
+    driver: local
+
+networks:
+  chronos-network:
+    driver: bridge

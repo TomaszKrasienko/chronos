@@ -1,6 +1,11 @@
-using chronos.time_loggers.core.Exceptions;
+using System.Net;
+using chronos.shared.exceptions;
 
 namespace chronos.time_loggers.core.Communication.Sync.Http.Exceptions;
 
-public sealed class HttpServiceNotFoundException(string code)
-    : ChronosException(code);
+public sealed class HttpServiceNotFoundException(string message)
+    : ChronosException(
+        "http.not_found",
+        message,
+        null,
+        HttpStatusCode.NotFound);

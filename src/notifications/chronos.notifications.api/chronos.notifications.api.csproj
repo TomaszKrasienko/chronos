@@ -13,7 +13,12 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\shared\chronos.shared.identity-context\chronos.shared.identity-context.csproj" />
       <ProjectReference Include="..\chronos.notifications.core\chronos.notifications.core.csproj" />
     </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\shared\chronos.shared.exceptions\chronos.shared.exceptions.csproj" />
+  </ItemGroup>
 
 </Project>

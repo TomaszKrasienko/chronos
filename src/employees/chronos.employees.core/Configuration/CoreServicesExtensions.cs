@@ -1,6 +1,5 @@
 using chronos.employees.core.Communication.Configuration;
 using chronos.employees.core.Services;
-using chronos.shared.configuration.Extensions;
 using Microsoft.Extensions.Configuration;
 
 // ReSharper disable once CheckNamespace
@@ -11,9 +10,16 @@ public static class CoreServicesExtensions
     public static IServiceCollection AddCore(
         this IServiceCollection services,
             IConfiguration configuration)
-        => services
+    {
+        services
             .AddDal(configuration)
             .AddCommunication(configuration)
+            .AddMemoryCache()
             .AddScoped<IEmployeeService, EmployeeService>()
+            .Decorate<IEmployeeService, CachedEmployeeService>()
+            .AddScoped<IEmployeeCache, CachedEmployeeService>()
             .AddBanner(configuration);
+
+        return services;
+    }
 }
