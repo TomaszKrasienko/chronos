@@ -46,7 +46,7 @@
                                 <small class="text-muted">@notification.TimeAgo</small>
                             </div>
                         </div>
-                        <button class="btn btn-sm btn-outline-secondary">
+                        <button class="btn btn-sm btn-outline-secondary" @onclick="() => MarkAsReadAsync(notification.Id)">
                             <i class="bi bi-check2"></i>
                         </button>
                     </div>
@@ -95,6 +95,25 @@
         finally
         {
             isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task MarkAsReadAsync(string notificationId)
+    {
+        if (string.IsNullOrEmpty(AppState.CurrentEmployeeId))
+        {
+            return;
+        }
+
+        try
+        {
+            await NotificationService.MarkAsReadAsync(notificationId, AppState.CurrentEmployeeId);
+            await LoadNotifications();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error marking notification as read: {ex.Message}";
             StateHasChanged();
         }
     }

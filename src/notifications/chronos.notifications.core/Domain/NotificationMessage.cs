@@ -7,7 +7,7 @@ public sealed class NotificationMessage
     public string Topic { get; }
     public string Message { get; }
     public DateTimeOffset CreatedAt { get; }
-    public DateTimeOffset? ReadAt { get; }
+    public DateTimeOffset? ReadAt { get; private set; }
 
     private NotificationMessage(
         Ulid id,
@@ -38,4 +38,7 @@ public sealed class NotificationMessage
             message,
             timeProvider.GetUtcNow(),
             null);
+
+    public void MarkAsRead(TimeProvider timeProvider)
+        => ReadAt = timeProvider.GetUtcNow();
 }

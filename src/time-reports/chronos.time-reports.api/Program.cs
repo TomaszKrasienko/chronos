@@ -1,3 +1,6 @@
+using chronos.time_reports.api;
+using chronos.time_reports.core.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddCors(options =>
@@ -11,42 +14,71 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddOpenApi();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+builder.Services.AddHealthChecks();
 builder.Services.AddCore(builder.Configuration);
 
 var app = builder.Build();
 app.UseCors("AllowAll");
 app.UseChronosExceptionHandling();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-}
+app.MapOpenApi();
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
 
-app.MapGet("/weatherforecast", () =>
+app.MapGet(
+    "/api/time-reports",
+    async (
+        HttpContext httpContext,
+        ITimeReportsService timeReportsService,
+        CancellationToken cancellationToken = default) =>
     {
-        var forecast = Enumerable.Range(1, 5).Select(index =>
-                new WeatherForecast
-                (
-                    DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                    Random.Shared.Next(-20, 55),
-                    summaries[Random.Shared.Next(summaries.Length)]
-                ))
-            .ToArray();
-        return forecast;
+        var employeeId = httpContext.GetEmployeeContext();
+
+        if (!employeeId.HasValue)
+        {
+            return Results.BadRequest("Employee context is required");
+        }
+
+        var timeReport = await timeReportsService.GetByEmployeeIdAsync(
+            employeeId.Value,
+            cancellationToken);
+
+        if (timeReport is null)
+        {
+            return Results.NotFound();
+        }
+
+        var timeReportDto = timeReport.ToDto();
+
+        return Results.Ok(timeReportDto);
     })
-    .WithName("GetWeatherForecast");
+    .WithName("GetTimeReport")
+    .WithOpenApi();
+
+app.MapPost(
+    "/api/time-reports/files/{employeeId}",
+    async (
+        string employeeId,
+        ITimeReportsService timeReportsService,
+        CancellationToken cancellationToken) =>
+    {
+        if (!Ulid.TryParse(employeeId, out var parsedEmployeeId))
+        {
+            return Results.BadRequest("Invalid employee ID format");
+        }
+
+        await timeReportsService.SaveToFileAsync(parsedEmployeeId, cancellationToken);
+        return Results.Ok();
+    })
+    .WithName("SaveTimeReportToFile")
+    .WithOpenApi();
+
+app.MapHealthChecks("/health/live");
+app.MapHealthChecks("/health/ready");
 
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}

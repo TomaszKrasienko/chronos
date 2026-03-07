@@ -16,6 +16,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddHealthChecks();
 builder.Services.AddCore(builder.Configuration);
 
 var app = builder.Build();
@@ -160,5 +161,8 @@ app.MapPatch(
     })
     .WithName("RejectTimeLog")
     .WithOpenApi();
+
+app.MapHealthChecks("/health/live");
+app.MapHealthChecks("/health/ready");
 
 app.Run();

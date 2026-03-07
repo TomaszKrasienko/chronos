@@ -1,5 +1,9 @@
-@employees_host = http://localhost:5001
-@time_loggers_host = http://localhost:5002
+#docker_configuration
+@employees_host = http://localhost:11001
+
+#IDE_configuration
+# @employees_host = http://localhost:5001
+# @time_loggers_host = http://localhost:5002
 
 ### Scenario: Create Employee and Time Logger
 
@@ -9,8 +13,9 @@ POST {{employees_host}}/api/employees
 Content-Type: application/json
 
 {
-  "firstName": "John",
+  "firstName": "Johnnie",
   "lastName": "Doe",
+  "email":"jd@chronos.com",
   "supervisorId": null
 }
 

@@ -4,6 +4,7 @@ namespace chronos.ui.Services;
 
 public interface ITimeReportService
 {
-    Task<List<TimeReport>> GetAllAsync();
+    Task<TimeReport?> GetByEmployeeIdAsync(string employeeId);
     Task<TimeReport?> GetByEmployeeAndPeriodAsync(string employeeId, string period);
+    Task GenerateReportFileAsync(string employeeId);
 }

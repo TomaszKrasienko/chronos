@@ -1,0 +1,11 @@
+{
+  "Id": "01KJZDDWBRH0SZ6PY9TWNTW0DC",
+  "EmployeeId": "01KJZD6HT7KW23N70BXW4JAG8K",
+  "Month": 3,
+  "Year": 2026,
+  "Summary": "08:00:00",
+  "RejectedTimeLoggerIds": [],
+  "AcceptedTimeLoggerIds": [
+    "00000000000000000000000000"
+  ]
+}

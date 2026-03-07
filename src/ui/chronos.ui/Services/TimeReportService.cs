@@ -7,19 +7,20 @@ public sealed class TimeReportService(IHttpClientFactory httpClientFactory) : IT
 {
     private readonly HttpClient _httpClient = httpClientFactory.CreateClient("TimeReportsAPI");
 
-    public async Task<List<TimeReport>> GetAllAsync()
+    public async Task<TimeReport?> GetByEmployeeIdAsync(string employeeId)
     {
-        try
+        using var requestMessage = new HttpRequestMessage(HttpMethod.Get, "time-reports");
+        requestMessage.Headers.Add("X-Employee-Id", employeeId);
+
+        var response = await _httpClient.SendAsync(requestMessage);
+
+        if (!response.IsSuccessStatusCode)
         {
-            // TODO: Implement GET /api/time-reports endpoint in API
-            var reports = await _httpClient.GetFromJsonAsync<List<TimeReport>>("/api/time-reports");
-            return reports ?? new List<TimeReport>();
+            return null;
         }
-        catch (HttpRequestException)
-        {
-            // Return mock data if API is not available
-            return GetMockTimeReports();
-        }
+
+        var result = await response.Content.ReadFromJsonAsync<TimeReport>();
+        return result;
     }
 
     public async Task<TimeReport?> GetByEmployeeAndPeriodAsync(string employeeId, string period)
@@ -27,7 +28,7 @@ public sealed class TimeReportService(IHttpClientFactory httpClientFactory) : IT
         try
         {
             return await _httpClient.GetFromJsonAsync<TimeReport>(
-                $"/api/time-reports?employeeId={employeeId}&period={period}");
+                $"time-reports?employeeId={employeeId}&period={period}");
         }
         catch (HttpRequestException)
         {
@@ -37,37 +38,42 @@ public sealed class TimeReportService(IHttpClientFactory httpClientFactory) : IT
         }
     }
 
+    public async Task GenerateReportFileAsync(string employeeId)
+    {
+        await _httpClient.PostAsync($"time-reports/files/{employeeId}", null);
+    }
+
     private static List<TimeReport> GetMockTimeReports() => new()
     {
         new TimeReport
         {
+            Id = "01JFABCDEFGHIJKLMNOPQRST01",
             EmployeeId = "01JFABCDEFGHIJKLMNOPQRSTUW",
             EmployeeName = "Jane Smith",
             Period = "December 2024",
-            TotalHours = 156.5m,
-            AcceptedEntries = 18,
-            PendingEntries = 2,
-            RejectedEntries = 0
+            Summary = "156:30:00",
+            AcceptedCount = 18,
+            RejectedCount = 0
         },
         new TimeReport
         {
+            Id = "01JFABCDEFGHIJKLMNOPQRST02",
             EmployeeId = "01JFABCDEFGHIJKLMNOPQRSTUX",
             EmployeeName = "Bob Johnson",
             Period = "December 2024",
-            TotalHours = 168.0m,
-            AcceptedEntries = 21,
-            PendingEntries = 0,
-            RejectedEntries = 1
+            Summary = "168:00:00",
+            AcceptedCount = 21,
+            RejectedCount = 1
         },
         new TimeReport
         {
+            Id = "01JFABCDEFGHIJKLMNOPQRST03",
             EmployeeId = "01JFABCDEFGHIJKLMNOPQRSTUV",
             EmployeeName = "John Doe",
             Period = "December 2024",
-            TotalHours = 172.0m,
-            AcceptedEntries = 22,
-            PendingEntries = 0,
-            RejectedEntries = 0
+            Summary = "172:00:00",
+            AcceptedCount = 22,
+            RejectedCount = 0
         }
     };
 }

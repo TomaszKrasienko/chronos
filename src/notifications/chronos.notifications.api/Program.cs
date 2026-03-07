@@ -13,6 +13,7 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddOpenApi();
+builder.Services.AddHealthChecks();
 builder.Services.AddCore(builder.Configuration);
 
 var app = builder.Build();
@@ -43,6 +44,35 @@ app.MapGet(
     })
     .WithName("GetUnreadNotificationsMessages")
     .WithOpenApi();
+
+app.MapPut(
+    "/api/notification-messages/{id}/read-status",
+    async (
+        Ulid id,
+        HttpContext context,
+        INotificationMessagesService notificationMessagesService,
+        CancellationToken cancellationToken) =>
+    {
+        var employeeId = context.GetEmployeeContext();
+
+        if (employeeId is null)
+        {
+            return Results.Unauthorized();
+        }
+
+        await notificationMessagesService
+            .MarkAsReadAsync(
+                id,
+                employeeId.Value,
+                cancellationToken);
+
+        return Results.NoContent();
+    })
+    .WithName("MarkNotificationMessageAsRead")
+    .WithOpenApi();
+
+app.MapHealthChecks("/health/live");
+app.MapHealthChecks("/health/ready");
 
 app.UseHttpsRedirection();
 app.Run();

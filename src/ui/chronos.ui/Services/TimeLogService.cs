@@ -11,8 +11,8 @@ public sealed class TimeLogService(IHttpClientFactory httpClientFactory) : ITime
     {
         try
         {
-            // TODO: Implement GET /api/time-loggers endpoint in API
-            var timeLogs = await _httpClient.GetFromJsonAsync<List<TimeLog>>("/api/time-loggers");
+            // TODO: Implement GET /time-loggers endpoint in API
+            var timeLogs = await _httpClient.GetFromJsonAsync<List<TimeLog>>("time-loggers");
             return timeLogs ?? new List<TimeLog>();
         }
         catch (HttpRequestException)
@@ -26,7 +26,7 @@ public sealed class TimeLogService(IHttpClientFactory httpClientFactory) : ITime
     {
         try
         {
-            var timeLogs = await _httpClient.GetFromJsonAsync<List<TimeLog>>($"/api/time-loggers?employeeId={employeeId}");
+            var timeLogs = await _httpClient.GetFromJsonAsync<List<TimeLog>>($"time-loggers?employeeId={employeeId}");
             return timeLogs ?? new List<TimeLog>();
         }
         catch (HttpRequestException)
@@ -38,7 +38,7 @@ public sealed class TimeLogService(IHttpClientFactory httpClientFactory) : ITime
 
     public async Task<string> CreateAsync(CreateTimeLogRequest request, string employeeId)
     {
-        using var requestMessage = new HttpRequestMessage(HttpMethod.Post, "/api/time-loggers");
+        using var requestMessage = new HttpRequestMessage(HttpMethod.Post, "time-loggers");
         requestMessage.Headers.Add("X-Employee-Id", employeeId);
         requestMessage.Content = JsonContent.Create(request);
 
@@ -52,7 +52,7 @@ public sealed class TimeLogService(IHttpClientFactory httpClientFactory) : ITime
 
     public async Task<List<TimeLog>> GetMyTimeLogsAsync(string employeeId)
     {
-        using var requestMessage = new HttpRequestMessage(HttpMethod.Get, "/api/time-loggers/my");
+        using var requestMessage = new HttpRequestMessage(HttpMethod.Get, "time-loggers/my");
         requestMessage.Headers.Add("X-Employee-Id", employeeId);
 
         var response = await _httpClient.SendAsync(requestMessage);
@@ -64,7 +64,7 @@ public sealed class TimeLogService(IHttpClientFactory httpClientFactory) : ITime
 
     public async Task<List<EmployeeTimeLogs>> GetSubordinatesTimeLogsAsync(string supervisorId)
     {
-        using var requestMessage = new HttpRequestMessage(HttpMethod.Get, "/api/time-loggers/subordinates");
+        using var requestMessage = new HttpRequestMessage(HttpMethod.Get, "time-loggers/subordinates");
         requestMessage.Headers.Add("X-Employee-Id", supervisorId);
 
         var response = await _httpClient.SendAsync(requestMessage);
@@ -76,14 +76,14 @@ public sealed class TimeLogService(IHttpClientFactory httpClientFactory) : ITime
 
     public async Task ApproveAsync(string timeLogId)
     {
-        // TODO: Implement PUT /api/time-loggers/{id}/approve endpoint in API
-        var response = await _httpClient.PutAsync($"/api/time-loggers/{timeLogId}/approve", null);
+        // TODO: Implement PUT /time-loggers/{id}/approve endpoint in API
+        var response = await _httpClient.PutAsync($"time-loggers/{timeLogId}/approve", null);
         response.EnsureSuccessStatusCode();
     }
 
     public async Task AcceptAsync(string timeLogId, string supervisorId)
     {
-        using var requestMessage = new HttpRequestMessage(HttpMethod.Patch, $"/api/time-loggers/{timeLogId}/accept");
+        using var requestMessage = new HttpRequestMessage(HttpMethod.Patch, $"time-loggers/{timeLogId}/accept");
         requestMessage.Headers.Add("X-Employee-Id", supervisorId);
 
         var response = await _httpClient.SendAsync(requestMessage);
@@ -92,7 +92,7 @@ public sealed class TimeLogService(IHttpClientFactory httpClientFactory) : ITime
 
     public async Task RejectAsync(string timeLogId, string supervisorId)
     {
-        using var requestMessage = new HttpRequestMessage(HttpMethod.Patch, $"/api/time-loggers/{timeLogId}/reject");
+        using var requestMessage = new HttpRequestMessage(HttpMethod.Patch, $"time-loggers/{timeLogId}/reject");
         requestMessage.Headers.Add("X-Employee-Id", supervisorId);
 
         var response = await _httpClient.SendAsync(requestMessage);

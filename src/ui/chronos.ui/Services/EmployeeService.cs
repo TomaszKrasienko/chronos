@@ -13,8 +13,8 @@ public sealed class EmployeeService(
     {
         try
         {
-            // TODO: Implement GET /api/employees endpoint in API
-            var employees = await _httpClient.GetFromJsonAsync<List<Employee>>("/api/employees");
+            // TODO: Implement GET /employees endpoint in API
+            var employees = await _httpClient.GetFromJsonAsync<List<Employee>>("employees");
             return employees ?? new List<Employee>();
         }
         catch (HttpRequestException ex)
@@ -28,7 +28,7 @@ public sealed class EmployeeService(
     {
         try
         {
-            return await _httpClient.GetFromJsonAsync<Employee>($"/api/employees/{id}");
+            return await _httpClient.GetFromJsonAsync<Employee>($"employees/{id}");
         }
         catch (HttpRequestException ex )
         {
@@ -39,7 +39,7 @@ public sealed class EmployeeService(
 
     public async Task<string> CreateAsync(CreateEmployeeRequest request)
     {
-        var response = await _httpClient.PostAsJsonAsync("/api/employees", request);
+        var response = await _httpClient.PostAsJsonAsync("employees", request);
         response.EnsureSuccessStatusCode();
 
         var result = await response.Content.ReadAsStringAsync();
@@ -50,7 +50,7 @@ public sealed class EmployeeService(
     public async Task AssignSupervisorAsync(string employeeId, string supervisorId)
     {
         var response = await _httpClient.PatchAsync(
-            $"/api/employees/{employeeId}/supervisors/{supervisorId}",
+            $"employees/{employeeId}/supervisors/{supervisorId}",
             null);
         response.EnsureSuccessStatusCode();
     }

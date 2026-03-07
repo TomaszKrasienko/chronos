@@ -1,0 +1,9 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: chronos-local
+provisioner: rancher.io/local-path  # ← nazwa provisionera
+parameters:
+  nodePath: /opt/local-path-provisioner  # parametry specyficzne
+reclaimPolicy: Delete
+volumeBindingMode: WaitForFirstConsumer

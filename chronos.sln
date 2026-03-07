@@ -30,6 +30,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "chronos.time-reports.api", "src\time-reports\chronos.time-reports.api\chronos.time-reports.api.csproj", "{62F73438-F5B6-4DB0-93AF-C9C8B15A8B85}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "notifications", "notifications", "{26F03DA1-6329-401B-BC5E-23A4E68DD08C}"
+	ProjectSection(SolutionItems) = preProject
+		src\notifications\Dockerfile = src\notifications\Dockerfile
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "chronos.notifications.core", "src\notifications\chronos.notifications.core\chronos.notifications.core.csproj", "{5D950A53-9803-460C-9576-D90AAB7182E3}"
 EndProject
@@ -50,6 +53,10 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ui", "ui", "{AF0CC2E6-171F-6D06-D3B7-11D252CFB402}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "chronos.ui", "src\ui\chronos.ui\chronos.ui.csproj", "{B10ED0A6-9DB3-4C9F-8C96-7A169621A898}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "reverse-proxy", "reverse-proxy", "{73B6EAB2-4D24-A47F-641B-BE2A30E0496E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "chronos.reverse-proxy", "src\reverse-proxy\chronos.reverse-proxy\chronos.reverse-proxy.csproj", "{F562E329-381E-4AD8-A8F0-6B5E625B99A7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -229,6 +236,18 @@ Global
 		{B10ED0A6-9DB3-4C9F-8C96-7A169621A898}.Release|x64.Build.0 = Release|Any CPU
 		{B10ED0A6-9DB3-4C9F-8C96-7A169621A898}.Release|x86.ActiveCfg = Release|Any CPU
 		{B10ED0A6-9DB3-4C9F-8C96-7A169621A898}.Release|x86.Build.0 = Release|Any CPU
+		{F562E329-381E-4AD8-A8F0-6B5E625B99A7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F562E329-381E-4AD8-A8F0-6B5E625B99A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F562E329-381E-4AD8-A8F0-6B5E625B99A7}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{F562E329-381E-4AD8-A8F0-6B5E625B99A7}.Debug|x64.Build.0 = Debug|Any CPU
+		{F562E329-381E-4AD8-A8F0-6B5E625B99A7}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{F562E329-381E-4AD8-A8F0-6B5E625B99A7}.Debug|x86.Build.0 = Debug|Any CPU
+		{F562E329-381E-4AD8-A8F0-6B5E625B99A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F562E329-381E-4AD8-A8F0-6B5E625B99A7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F562E329-381E-4AD8-A8F0-6B5E625B99A7}.Release|x64.ActiveCfg = Release|Any CPU
+		{F562E329-381E-4AD8-A8F0-6B5E625B99A7}.Release|x64.Build.0 = Release|Any CPU
+		{F562E329-381E-4AD8-A8F0-6B5E625B99A7}.Release|x86.ActiveCfg = Release|Any CPU
+		{F562E329-381E-4AD8-A8F0-6B5E625B99A7}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -254,5 +273,6 @@ Global
 		{3B3B37B1-9C4D-4053-9FEB-46F3CE1BBD3F} = {7A467E41-8532-408F-923E-432F470C44EB}
 		{AF0CC2E6-171F-6D06-D3B7-11D252CFB402} = {2BE25C38-CAE0-4495-810B-5BB14024C824}
 		{B10ED0A6-9DB3-4C9F-8C96-7A169621A898} = {AF0CC2E6-171F-6D06-D3B7-11D252CFB402}
+		{F562E329-381E-4AD8-A8F0-6B5E625B99A7} = {73B6EAB2-4D24-A47F-641B-BE2A30E0496E}
 	EndGlobalSection
 EndGlobal
