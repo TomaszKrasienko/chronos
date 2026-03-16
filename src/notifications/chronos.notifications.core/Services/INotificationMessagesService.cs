@@ -9,10 +9,16 @@ public interface INotificationMessagesService
     Task<IReadOnlyCollection<NotificationMessageResponseDto>> GetUnreadAsync(
         Ulid employeeId,
         CancellationToken cancellationToken = default);
+
+    Task MarkAsReadAsync(
+        Ulid notificationId,
+        Ulid employeeId,
+        CancellationToken cancellationToken = default);
 }
 
 internal sealed class NotificationMessagesService(
-    NotificationsDbContext dbContext) : INotificationMessagesService
+    NotificationsDbContext dbContext,
+    TimeProvider timeProvider) : INotificationMessagesService
 {
     public async Task<IReadOnlyCollection<NotificationMessageResponseDto>> GetUnreadAsync(
         Ulid employeeId,
@@ -34,5 +40,23 @@ internal sealed class NotificationMessagesService(
             .ToListAsync(cancellationToken);
 
         return notifications;
+    }
+
+    public async Task MarkAsReadAsync(
+        Ulid notificationId,
+        Ulid employeeId,
+        CancellationToken cancellationToken = default)
+    {
+        var notification = await dbContext
+            .NotificationMessages
+            .FirstOrDefaultAsync(x => x.Id == notificationId && x.EmployeeId == employeeId, cancellationToken);
+
+        if (notification is null)
+        {
+            return;
+        }
+
+        notification.MarkAsRead(timeProvider);
+        await dbContext.SaveChangesAsync(cancellationToken);
     }
 }

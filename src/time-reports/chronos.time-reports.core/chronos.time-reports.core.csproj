@@ -26,4 +26,13 @@
         <PackageReference Include="Ulid" Version="1.4.1" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Communication\Async\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\shared\chronos.shared.configuration\chronos.shared.configuration.csproj" />
+      <ProjectReference Include="..\..\shared\chronos.shared.messaging.rabbit-mq\chronos.shared.messaging.rabbit-mq.csproj" />
+    </ItemGroup>
+
 </Project>

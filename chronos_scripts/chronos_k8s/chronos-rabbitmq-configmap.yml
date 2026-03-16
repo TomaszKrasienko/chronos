@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata: 
+  name: rabbitmq
+  namespace: chronos-namespace
+data:
+  rabbitmq-hostname: "rabbitmq.chronos-namespace.svc.cluster.local"
+  rabbitmq-port: "5672"
+  rabbitmq-username: "admin"
+  rabbitmq-vhost: "chronos"

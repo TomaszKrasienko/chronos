@@ -1,4 +1,5 @@
 using chronos.time_reports.core.Configuration;
+using chronos.time_reports.core.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 
@@ -11,13 +12,11 @@ public static class CoreServicesExtensions
         this IServiceCollection services,
             IConfiguration configuration)
         => services
+            .AddSingleton(TimeProvider.System)
             .AddDal(configuration)
             .Configure<AppOptions>(configuration.GetSection(nameof(AppOptions)))
+            .Configure<SavingOptions>(configuration.GetSection(nameof(SavingOptions)))
+            .AddRabbitMq(configuration)
+            .AddScoped<ITimeReportsService, TimeReportsService>()
             .AddHostedService<BannerService>();
-
-    internal static T GetOptions<T>(this IServiceCollection services) where T : class
-    {
-        var sp = services.BuildServiceProvider();
-        return sp.GetRequiredService<IOptions<T>>().Value;
-    }
 }

@@ -1,31 +1,36 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using chronos.ui;
+using chronos.ui.Models;
 using chronos.ui.Services;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
+// Load API settings from configuration
+var apiSettings = builder.Configuration.GetSection("ApiSettings").Get<ApiSettings>() ?? new ApiSettings();
+var endpoints = apiSettings.GetCurrentEndpoints();
+
 // Configure HttpClients for different APIs
 builder.Services.AddHttpClient("EmployeesAPI", client =>
 {
-    client.BaseAddress = new Uri("http://localhost:5001");
+    client.BaseAddress = new Uri(endpoints.EmployeesApi);
 });
 
 builder.Services.AddHttpClient("TimeLoggersAPI", client =>
 {
-    client.BaseAddress = new Uri("http://localhost:5002");
+    client.BaseAddress = new Uri(endpoints.TimeLoggersApi);
 });
 
 builder.Services.AddHttpClient("TimeReportsAPI", client =>
 {
-    client.BaseAddress = new Uri("http://localhost:5003");
+    client.BaseAddress = new Uri(endpoints.TimeReportsApi);
 });
 
 builder.Services.AddHttpClient("NotificationsAPI", client =>
 {
-    client.BaseAddress = new Uri("http://localhost:5004");
+    client.BaseAddress = new Uri(endpoints.NotificationsApi);
 });
 
 // Register services

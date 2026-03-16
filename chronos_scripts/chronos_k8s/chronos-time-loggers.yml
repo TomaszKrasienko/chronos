@@ -1,0 +1,158 @@
+apiVersion: v1
+kind: ConfigMap
+metadata: 
+  name: time-loggers
+  namespace: chronos-namespace
+data:
+  dotnet-environment: "Kubernetes"
+  kestrel-http-url: "http://0.0.0.0:8080"
+  kestrel-grpc-url: "http://0.0.0.0:8081"
+  dal-database-name: "time_loggers_Kubernetes"
+  grpc-enabled: "false"
+  http-enabled: "true"
+  http-client-employees-name: "HttpEmployeesClient"
+  http-client-employees-uri: "http://employees.chronos-namespace.svc.cluster.local:8080"
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: time-loggers
+  namespace: chronos-namespace
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: time-loggers
+  template:
+    metadata:
+      labels:
+        app: time-loggers
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+      containers:
+        - name: time-loggers
+          image: chronos/time-loggers:latest
+          imagePullPolicy: Never
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 10001
+            runAsGroup: 10001
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          ports:
+            - containerPort: 8080
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              valueFrom:
+                configMapKeyRef:
+                  name: time-loggers
+                  key: dotnet-environment
+            - name: Kestrel__Endpoints__Http__Url
+              valueFrom:
+                configMapKeyRef:
+                  name: time-loggers
+                  key: kestrel-http-url
+            - name: Kestrel__Endpoints__Grpc__Url
+              valueFrom:
+                configMapKeyRef:
+                  name: time-loggers
+                  key: kestrel-grpc-url
+            - name: DalOptions__ConnectionString
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key: dal-connection-string
+            - name: DalOptions__DatabaseName
+              valueFrom:
+                configMapKeyRef:
+                  name: time-loggers
+                  key: dal-database-name
+            - name: GrpcCommunicationOptions__Enabled
+              valueFrom:
+                configMapKeyRef:
+                  name: time-loggers
+                  key: grpc-enabled
+            - name: RabbitMqOptions__HostName
+              valueFrom:
+                configMapKeyRef:
+                  name: rabbitmq
+                  key: rabbitmq-hostname
+            - name: RabbitMqOptions__Port
+              valueFrom:
+                configMapKeyRef:
+                  name: rabbitmq
+                  key: rabbitmq-port
+            - name: RabbitMqOptions__Username
+              valueFrom:
+                configMapKeyRef:
+                  name: rabbitmq
+                  key: rabbitmq-username
+            - name: RabbitMqOptions__Password
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key: rabbitmq-password
+            - name: RabbitMqOptions__VirtualHost
+              valueFrom:
+                configMapKeyRef:
+                  name: rabbitmq
+                  key: rabbitmq-vhost
+            - name: HttpCommunicationOptions__Enabled
+              valueFrom:
+                configMapKeyRef:
+                  name: time-loggers
+                  key: http-enabled
+            - name: HttpCommunicationOptions__Clients__0__Name
+              valueFrom:
+                configMapKeyRef:
+                  name: time-loggers
+                  key: http-client-employees-name
+            - name: HttpCommunicationOptions__Clients__0__Uri
+              valueFrom:
+                configMapKeyRef:
+                  name: time-loggers
+                  key: http-client-employees-uri
+  
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: time-loggers
+  namespace: chronos-namespace
+spec:
+  selector:
+    app: time-loggers
+  ports:
+    - name: http-time-loggers
+      port: 8080
+      targetPort: 8080
+  type: ClusterIP

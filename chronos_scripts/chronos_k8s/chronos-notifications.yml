@@ -1,0 +1,128 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: notifications
+  namespace: chronos-namespace
+data:
+  dotnet-environment: "Kubernetes"
+  kestrel-http-url: "http://0.0.0.0:8080"
+  dal-database-name: "notifications_Kubernetes"
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notifications
+  namespace: chronos-namespace
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: notifications
+  template:
+    metadata:
+      labels:
+        app: notifications
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+      containers:
+        - name: notifications
+          image: chronos/notifications:latest
+          imagePullPolicy: Never
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 10001
+            runAsGroup: 10001
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          ports:
+            - containerPort: 8080
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              valueFrom:
+                configMapKeyRef:
+                  name: notifications
+                  key: dotnet-environment
+            - name: Kestrel__Endpoints__Http__Url
+              valueFrom:
+                configMapKeyRef:
+                  name: notifications
+                  key: kestrel-http-url
+            - name: DalOptions__ConnectionString
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key: dal-connection-string
+            - name: DalOptions__DatabaseName
+              valueFrom:
+                configMapKeyRef:
+                  name: notifications
+                  key: dal-database-name
+            - name: RabbitMqOptions__HostName
+              valueFrom:
+                configMapKeyRef:
+                  name: rabbitmq
+                  key: rabbitmq-hostname
+            - name: RabbitMqOptions__Port
+              valueFrom:
+                configMapKeyRef:
+                  name: rabbitmq
+                  key: rabbitmq-port
+            - name: RabbitMqOptions__Username
+              valueFrom:
+                configMapKeyRef:
+                  name: rabbitmq
+                  key: rabbitmq-username
+            - name: RabbitMqOptions__Password
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key: rabbitmq-password
+            - name: RabbitMqOptions__VirtualHost
+              valueFrom:
+                configMapKeyRef:
+                  name: rabbitmq
+                  key: rabbitmq-vhost
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: notifications
+  namespace: chronos-namespace
+spec:
+  selector:
+    app: notifications
+  ports:
+    - name: http-notifications
+      port: 8080
+      targetPort: 8080
+  type: ClusterIP

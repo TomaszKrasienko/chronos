@@ -1,0 +1,116 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: reverse-proxy
+  namespace: chronos-namespace
+data:
+  dotnet-environment: "Kubernetes"
+  kestrel-http-url: "http://0.0.0.0:8080"
+  employees-address: "http://employees.chronos-namespace.svc.cluster.local:8080"
+  time-loggers-address: "http://time-loggers.chronos-namespace.svc.cluster.local:8080"
+  time-reports-address: "http://time-reports.chronos-namespace.svc.cluster.local:8080"
+  notifications-address: "http://notifications.chronos-namespace.svc.cluster.local:8080"
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: reverse-proxy
+  namespace: chronos-namespace
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: reverse-proxy
+  template:
+    metadata:
+      labels:
+        app: reverse-proxy
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+      containers:
+        - name: reverse-proxy
+          image: chronos/reverse-proxy:latest
+          imagePullPolicy: Never
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 10001
+            runAsGroup: 10001
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          ports:
+            - containerPort: 8080
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              valueFrom:
+                configMapKeyRef:
+                  name: reverse-proxy
+                  key: dotnet-environment
+            - name: Kestrel__Endpoints__Http__Url
+              valueFrom:
+                configMapKeyRef:
+                  name: reverse-proxy
+                  key: kestrel-http-url
+            - name: ReverseProxy__Clusters__employees-cluster__Destinations__destination1__Address
+              valueFrom:
+                configMapKeyRef:
+                  name: reverse-proxy
+                  key: employees-address
+            - name: ReverseProxy__Clusters__time-loggers-cluster__Destinations__destination1__Address
+              valueFrom:
+                configMapKeyRef:
+                  name: reverse-proxy
+                  key: time-loggers-address
+            - name: ReverseProxy__Clusters__time-reports-cluster__Destinations__destination1__Address
+              valueFrom:
+                configMapKeyRef:
+                  name: reverse-proxy
+                  key: time-reports-address
+            - name: ReverseProxy__Clusters__notifications-cluster__Destinations__destination1__Address
+              valueFrom:
+                configMapKeyRef:
+                  name: reverse-proxy
+                  key: notifications-address
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: reverse-proxy
+  namespace: chronos-namespace
+spec:
+  selector:
+    app: reverse-proxy
+  ports:
+    - name: http-reverse-proxy
+      port: 8080
+      targetPort: 8080
+  type: ClusterIP

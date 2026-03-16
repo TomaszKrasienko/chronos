@@ -1,0 +1,6 @@
+@chronos.jobs.synchronizer_HostAddress = http://localhost:5083
+
+GET {{chronos.jobs.synchronizer_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

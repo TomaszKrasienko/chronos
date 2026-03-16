@@ -16,7 +16,12 @@ internal static class CommunicationRabbitMqServicesExtensions
     {
         var appOptions = services
             .GetOptions<AppOptions>();
-        
+
+        // Force assembly load to ensure types are discoverable in MessagesRouteRegistry
+        _ = typeof(EmployeeCreated);
+        _ = typeof(SupervisorAssigned);
+        _ = typeof(TimeLogCreated);
+
         services.AddChronosRabbitMq(
             configuration,
             appOptions.Name);

@@ -18,8 +18,14 @@ FROM mcr.microsoft.com/dotnet/aspnet:9.0
 WORKDIR /app
 
 COPY --from=build-env /app/publish .
-ENTRYPOINT ["dotnet", "chronos.time-loggers.api.dll"]
 
 ENV TZ="Europe/Warsaw"
 
+RUN adduser --disabled-password --gecos "" appuser && \
+    chown -R appuser:appuser /app
+
+USER appuser
+
 EXPOSE 5002
+
+ENTRYPOINT ["dotnet", "chronos.time-loggers.api.dll"]

@@ -45,14 +45,26 @@ internal sealed class TimeReportsDbContext(
 
         modelBuilder
             .Entity<MonthlyTimeReport>()
-            .Property(x => x.RejectionsCount)
+            .Property(x => x.RejectedTimeLoggerIds)
             .IsRequired()
-            .HasElementName("RejectionsCount");
+            .HasElementName("RejectedTimeLoggerIds");
 
         modelBuilder
             .Entity<MonthlyTimeReport>()
-            .Property(x => x.AcceptationsCount)
+            .Property(x => x.AcceptedTimeLoggerIds)
             .IsRequired()
-            .HasElementName("AcceptationsCount");
+            .HasElementName("AcceptedTimeLoggerIds");
+
+        modelBuilder
+            .Entity<MonthlyTimeReport>()
+            .Property(x => x.Month)
+            .IsRequired()
+            .HasElementName("Month");
+
+        modelBuilder
+            .Entity<MonthlyTimeReport>()
+            .Property(x => x.Year)
+            .IsRequired()
+            .HasElementName("Year");
     }
 }
