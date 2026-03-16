@@ -70,11 +70,18 @@ public static IServiceCollection Add{FeatureName}(this IServiceCollection servic
 Main entry point is `AddCore()` which chains: `AddDal()`, `AddCommunication()`, etc.
 
 ### Shared Libraries
+- `chronos.shared.kernel` - DDD building blocks (IEntityId, Entity, AggregateRoot, ValueObject)
 - `chronos.shared.configuration` - Configuration utilities
 - `chronos.shared.exceptions` - Exception handling middleware
 - `chronos.shared.identity-context` - Employee context from HTTP headers
 - `chronos.shared.messaging` - Messaging abstractions
 - `chronos.shared.messaging.rabbit-mq` - RabbitMQ implementation
+
+### Domain Modeling
+- Strongly-typed IDs: `readonly record struct` implementing `IEntityId`
+- Aggregates inherit from `AggregateRoot<TId>`
+- Entities inherit from `Entity<TId>`
+- Value objects inherit from `ValueObject`
 
 ## Technologies
 
