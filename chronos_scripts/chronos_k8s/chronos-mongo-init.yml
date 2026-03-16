@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: hangfire-cleanup
+  namespace: chronos-namespace
+  labels:
+    app: hangfire-cleanup
+spec:
+  restartPolicy: OnFailure
+  containers:
+    - name: hangfire-cleanup
+      image: rtsp/mongosh:latest

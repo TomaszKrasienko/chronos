@@ -78,8 +78,8 @@ spec:
             - name: RABBITMQ_DEFAULT_PASS
               value: "guest"
           volumeMounts:
-            - name: rabbitmq-pvc
-              mountPath: /var/lib/rabbitmq
+            - name: rabbitmq-data
+              mountPath: /data/rabbitmq
             - name: rabbitmq-conf
               mountPath: /etc/rabbitmq/rabbitmq.conf
               subPath: rabbitmq.conf
@@ -87,6 +87,9 @@ spec:
         - name: rabbitmq-conf
           configMap:
             name: rabbitmq-conf
+        - name: rabbitmq-data
+          persistentVolumeClaim:
+            claimName: s3-pvc
   volumeClaimTemplates:
       - metadata:
           name: rabbitmq-pvc

@@ -51,14 +51,9 @@ spec:
           ports:
             - containerPort: 27017
           volumeMounts:
-            - name: mongo-pvc
+            - name: mongo-data
               mountPath: /data/mongo
-  volumeClaimTemplates:
-      - metadata:
-          name: mongo-pvc
-        spec:
-          accessModes:
-            - ReadWriteOnce
-          resources:
-            requests:
-              storage: 2Gi
+      volumes:
+        - name: mongo-data
+          persistentVolumeClaim: 
+            claimName: s3-pvc

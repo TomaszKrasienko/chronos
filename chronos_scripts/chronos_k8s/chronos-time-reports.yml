@@ -122,7 +122,7 @@ spec:
       volumes:
         - name: reports-storage
           persistentVolumeClaim:
-            claimName: time-reports
+            claimName: s3-pvc
 
 ---
 
@@ -139,19 +139,3 @@ spec:
       port: 8080
       targetPort: 8080
   type: ClusterIP
-
-
----
-
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: time-reports
-  namespace: chronos-namespace
-spec:
-  accessModes:
-  - ReadWriteOnce
-  volumeName: chronos-pv
-  resources:
-    requests:
-      storage: 1Gi
