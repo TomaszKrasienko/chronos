@@ -1,0 +1,116 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jobs
+  namespace: chronos-namespace
+data:
+  dotnet-environment: "Kubernetes"
+  database-name: "hangfire_Kubernetes"
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jobs
+  namespace: chronos-namespace
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jobs
+  template:
+    metadata:
+      labels:
+        app: jobs
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+      initContainers:
+        - name: hangfire-cleanup
+          image: rtsp/mongosh:latest
+          command:
+            - mongosh
+            - "$(MONGO_CONNECTION_STRING)"
+            - --eval
+            - | 
+                db.getCollection('hangfire.jobGraph').deleteMany({
+                "_t": "JobDto",
+                "StateName": { $in: ["Scheduled", "Failed", "Awaiting"] }
+                });
+                print("Hangfire retry jobs cleaned up");
+          env:
+            - name: MONGO_CONNECTION_STRING
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key: dal-connection-string
+      containers:
+        - name: jobs
+          image: chronos/jobs:latest
+          imagePullPolicy: Never
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 10001
+            runAsGroup: 10001
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          ports:
+            - containerPort: 8080
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              valueFrom:
+                configMapKeyRef:
+                  name: notifications
+                  key: dotnet-environment
+            - name: HangfireOptions__ConnectionString
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key: dal-connection-string
+            - name: HangfireOptions__DatabaseName
+              valueFrom:
+                configMapKeyRef:
+                  name: jobs
+                  key: database-name
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: jobs
+  namespace: chronos-namespace
+spec:
+  selector:
+    app: jobs
+  ports:
+    - name: http-notifications
+      port: 8080
+      targetPort: 8080
+  type: ClusterIP

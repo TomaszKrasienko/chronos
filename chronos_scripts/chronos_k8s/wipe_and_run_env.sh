@@ -39,8 +39,8 @@ kubectl delete -f chronos-mongo.yml --ignore-not-found
 echo "Wiping Rabbit MQ..."
 kubectl delete -f chronos-rabbitmq.yml --ignore-not-found
 
-echo "Wiping namespace..."
-kubectl delete -f chronos-namespace.yml --ignore-not-found
+# echo "Wiping namespace..."
+# kubectl delete -f chronos-namespace.yml --ignore-not-found
 
 echo "Wiping Persistent Volume..."
 kubectl delete -f chronos-persistent-volume.yml --ignore-not-found

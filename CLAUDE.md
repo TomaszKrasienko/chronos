@@ -1,13 +1,37 @@
 # CLAUDE.md
-
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Project Overview
+- Chronos is a microservices-based time tracking system built with .NET 9 and Blazor WebAssembly.
+- Employees submit time-logs that supervisors approve/reject.
+- Every time-log has to have a project.
+- Time reports aggregate and summarize work hours.
 
-Chronos is a microservices-based time tracking system built with .NET 9 and Blazor WebAssembly. Employees submit time-logs that supervisors approve/reject. Time reports aggregate and summarize work hours.
+## Domain Architecture
 
-## Skills
-Skills to load to context are in .claude/skills
+### Bounded contexts
+- Bounded context: Employee
+  - Aggregate Employee: Base information about person: FirstName, LastName, Email, Supervisor
+
+- Bounded Context: Contracts - TODO
+  - Aggregate Contract: Base information about working hours per month grouped by projects. Also information about contract - assignment date, closing date, company name, contract supervisor
+  - Entity: Employee: List of employees assigned to contract. In assignment there are hours of employee.
+
+- Time
+  - Aggregate MonthlyTimeReport: Aggregates every time log for contract
+  - Entity TimeLog (Abstract): Information about logged time. Time is logged by employee. TimeLog should know about employeeId, amount of hours and contract - at the beginning contract will be replaced by topic. TimeLog has to have a place for notes.
+    - Implementations of TimeLog
+      - AcceptedTimeLog - after acceptance from supervisor or after automatic acceptance, with additional field AcceptedBy
+      - RejectedTimeLog - after rejection, with additional fields Reason, RejectedBy
+      - WaitingForAcceptation - with additional field - SupervisorId
+  
+
+### Events
+- TimeLogCreated - After creation of WaitingForAcceptation
+  Executes process of pre-acceptation - process is in Contracts and it checks that hours are not exceeded.
+- TimeLogAutomaticlyRejected
+- TimeLogAccepted
+- TimeLogRejected
 
 ## Build & Run Commands
 
@@ -24,13 +48,6 @@ cd chronos_scripts/chronos_docker && ./wipe_and_run_env.sh
 # Build Docker image for a service
 cd chronos_scripts/builds && ./employees.sh
 ```
-
-**Infrastructure ports:**
-- MongoDB: 10011
-- RabbitMQ: 10012 (AMQP), 10013 (Management UI)
-
-**Service ports:**
-- UI: 5000 | Employees: 5001 | Time Loggers: 5002 | Time Reports: 5003 | Notifications: 5004
 
 ## Architecture
 
@@ -59,6 +76,13 @@ Main entry point is `AddCore()` which chains: `AddDal()`, `AddCommunication()`, 
 - `chronos.shared.messaging` - Messaging abstractions
 - `chronos.shared.messaging.rabbit-mq` - RabbitMQ implementation
 
+## Technologies
+
+- .NET 9, MongoDB with EF Core, RabbitMQ
+- Scrutor for decorator pattern in DI
+- Swashbuckle for Swagger UI
+- YARP for reverse proxy
+
 ## Code Conventions
 
 - Async methods must have `Async` suffix
@@ -67,15 +91,10 @@ Main entry point is `AddCore()` which chains: `AddDal()`, `AddCommunication()`, 
 - Uses Ulid for identifiers (not Guid)
 - Project settings: `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>`
 
-## Technologies
-
-- .NET 9, MongoDB with EF Core, RabbitMQ, gRPC (inter-service sync communication)
-- Scrutor for decorator pattern in DI
-- Swashbuckle for Swagger UI
-- YARP for reverse proxy
+### Namespaces
+Extension class should have namespace of extended object - e.g. IServiceCollection 
 
 ## Git Workflow
-
 - Main branch: `main`
 - Development branch: `develop`
 - Create feature branches from `develop`

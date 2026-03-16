@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: csi-s3
+  namespace: chronos-namespace
+data:
+  accessKeyID: c3VwZXJfdXNlcg==
+  secretAccessKey: WTJoeWIyNXZjMTl0YVc1cGIxOXpaV055WlhSZmEyVjVDZz09
+  endpoint: aHR0cDovL2hvc3QuZG9ja2VyLmludGVybmFsOjkwMDA=
+
+---
+
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: csi-s3
+  namespace: chronos-namespace
+provisioner: ru.yandex.s3.csi
+parameters:
+  mounter: geesefs
+  options: "--memory-limit=64 --dir-mode=0777 --file-mode=0666"
+  bucket: chronos-bucket
+  csi.storage.k8s.io/provisioner-secret-name: csi-s3
+  csi.storage.k8s.io/provisioner-secret-namespace: chronos-namespace
+  csi.storage.k8s.io/controller-publish-secret-name: csi-s3
+  csi.storage.k8s.io/controller-publish-secret-namespace: chronos-namespace
+  csi.storage.k8s.io/node-stage-secret-name: csi-s3
+  csi.storage.k8s.io/node-stage-secret-namespace: chronos-namespace
+  csi.storage.k8s.io/node-publish-secret-name: csi-s3
+  csi.storage.k8s.io/node-publish-secret-namespace: chronos-namespace
+reclaimPolicy: Delete
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: s3-pvc
+  namespace: chronos-namespace
+spec:
+  storageClassName: csi-s3
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi
