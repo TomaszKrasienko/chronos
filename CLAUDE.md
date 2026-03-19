@@ -3,9 +3,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 - Chronos is a microservices-based time tracking system built with .NET 9 and Blazor WebAssembly.
-- Employees submit time-logs that supervisors approve/reject.
-- Every time-log has to have a project.
-- Time reports aggregate and summarize work hours.
 
 ## Domain Architecture
 
@@ -17,21 +14,26 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   - Aggregate Contract: Base information about working hours per month grouped by projects. Also information about contract - assignment date, closing date, company name, contract supervisor
   - Entity: Employee: List of employees assigned to contract. In assignment there are hours of employee.
 
-- Time
-  - Aggregate MonthlyTimeReport: Aggregates every time log for contract
+- Bounded Context: TimeLogs - TODO
+  - Aggregate MonthlyTimeReport: Aggregates every time log for contract and user
   - Entity TimeLog (Abstract): Information about logged time. Time is logged by employee. TimeLog should know about employeeId, amount of hours and contract - at the beginning contract will be replaced by topic. TimeLog has to have a place for notes.
     - Implementations of TimeLog
       - AcceptedTimeLog - after acceptance from supervisor or after automatic acceptance, with additional field AcceptedBy
       - RejectedTimeLog - after rejection, with additional fields Reason, RejectedBy
       - WaitingForAcceptation - with additional field - SupervisorId
   
+### Additional modules
+- Notifications
+- ReverseProxy
+- Jobs
 
 ### Events
 - TimeLogCreated - After creation of WaitingForAcceptation
   Executes process of pre-acceptation - process is in Contracts and it checks that hours are not exceeded.
-- TimeLogAutomaticlyRejected
-- TimeLogAccepted
-- TimeLogRejected
+- TimeLogAutomaticlyRejected - After creation of WaitingForAcceptation
+  Executes process of pre-acceptation - process is in Contracts and it checks that hours are exceeded
+- TimeLogAccepted - After handly supervisor acceptation 
+- TimeLogRejected - After handly supervisor rejection 
 
 ## Build & Run Commands
 
@@ -89,6 +91,7 @@ Main entry point is `AddCore()` which chains: `AddDal()`, `AddCommunication()`, 
 - Scrutor for decorator pattern in DI
 - Swashbuckle for Swagger UI
 - YARP for reverse proxy
+- CRON Jobs executed by hangfire
 
 ## Code Conventions
 
