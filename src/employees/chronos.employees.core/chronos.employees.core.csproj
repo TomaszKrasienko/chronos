@@ -28,6 +28,7 @@
     <ItemGroup>
       <ProjectReference Include="..\..\shared\chronos.shared.configuration\chronos.shared.configuration.csproj" />
       <ProjectReference Include="..\..\shared\chronos.shared.exceptions\chronos.shared.exceptions.csproj" />
+      <ProjectReference Include="..\..\shared\chronos.shared.kernel\chronos.shared.kernel.csproj" />
       <ProjectReference Include="..\..\shared\chronos.shared.messaging.rabbit-mq\chronos.shared.messaging.rabbit-mq.csproj" />
       <ProjectReference Include="..\..\shared\chronos.shared.messaging\chronos.shared.messaging.csproj" />
     </ItemGroup>

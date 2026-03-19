@@ -1,5 +1,7 @@
 using chronos.employees.core.DAL;
 using chronos.employees.core.Domain;
+using chronos.employees.core.Domain.Identifiers;
+using chronos.employees.core.Domain.ValueObjects;
 using chronos.employees.core.Events;
 using chronos.employees.core.Exceptions;
 using chronos.shared.messaging;
@@ -78,31 +80,33 @@ internal sealed class EmployeeService(
         Ulid? supervisorId,
         CancellationToken cancellationToken)
     {
-        var employee = Employee.Create(
-            Ulid.NewUlid(),
-            firstName,
-            lastName,
-            email,
-            supervisorId);
+        var fullName = FullName.Create(firstName, lastName);
+        var emailVo = Email.Create(email);
+        var employee = Employee.Create(fullName, emailVo);
+
+        if (supervisorId.HasValue)
+        {
+            employee.AssignSupervisor(new EmployeeId(supervisorId.Value));
+        }
 
         if (await dbContext.Employees.AnyAsync(x
-                => x.FirstName == firstName
-                && x.LastName == lastName, cancellationToken))
+                => x.FullName.FirstName == firstName
+                && x.FullName.LastName == lastName, cancellationToken))
         {
             throw new EmployeeAlreadyExistsException(firstName, lastName);
         }
 
         var @event = new EmployeeCreated(
-            employee.Id,
-            employee.FirstName,
-            employee.LastName,
-            employee.Email,
-            employee.SupervisorId);
+            employee.Id.Value,
+            employee.FullName.FirstName,
+            employee.FullName.LastName,
+            employee.Email.Value,
+            employee.SupervisorId?.Value);
 
         await dbContext.Employees.AddAsync(employee, cancellationToken);
         await messagePublisher.Send(@event, cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
-        
+
         return employee;
     }
 
@@ -113,7 +117,7 @@ internal sealed class EmployeeService(
     {
         var employee = await dbContext.Employees
             .SingleOrDefaultAsync(
-                e => e.Id == employeeId,
+                e => e.Id == new EmployeeId(employeeId),
                 cancellationToken);
 
         if (employee is null)
@@ -123,7 +127,7 @@ internal sealed class EmployeeService(
 
         var doesSupervisorExist = await dbContext.Employees
             .AnyAsync(
-                e => e.Id == supervisorId,
+                e => e.Id == new EmployeeId(supervisorId),
                 cancellationToken);
 
         if (!doesSupervisorExist)
@@ -131,12 +135,12 @@ internal sealed class EmployeeService(
             throw new SupervisorEmployeeNotFoundException(supervisorId);
         }
 
-        employee.ChangeSupervisor(supervisorId);
-        
+        employee.AssignSupervisor(new EmployeeId(supervisorId));
+
         var @event = new SupervisorAssigned(
             employeeId,
             supervisorId);
-        
+
         await messagePublisher.Send(@event, cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
     }
@@ -148,7 +152,7 @@ internal sealed class EmployeeService(
         return await dbContext.Employees
             .AsNoTracking()
             .SingleOrDefaultAsync(
-                e => e.Id == employeeId,
+                e => e.Id == new EmployeeId(employeeId),
                 cancellationToken);
     }
 
@@ -165,7 +169,7 @@ internal sealed class EmployeeService(
     {
         return await dbContext.Employees
             .AsNoTracking()
-            .Where(e => e.SupervisorId == supervisorId)
+            .Where(e => e.SupervisorId == new EmployeeId(supervisorId))
             .ToListAsync(cancellationToken);
     }
 }

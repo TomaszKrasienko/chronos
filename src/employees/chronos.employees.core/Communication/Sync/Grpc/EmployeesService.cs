@@ -46,10 +46,10 @@ internal sealed class EmployeesService(
 
         return new GetByIdResponse
         {
-            Id = employee.Id.ToString(),
-            FirstName = employee.FirstName,
-            LastName = employee.LastName,
-            SupervisorId = employee.SupervisorId?.ToString() ?? string.Empty
+            Id = employee.Id.Value.ToString(),
+            FirstName = employee.FullName.FirstName,
+            LastName = employee.FullName.LastName,
+            SupervisorId = employee.SupervisorId?.Value.ToString() ?? string.Empty
         };
     }
 
@@ -72,10 +72,10 @@ internal sealed class EmployeesService(
         {
             response.Employees.Add(new GetByIdResponse
             {
-                Id = employee.Id.ToString(),
-                FirstName = employee.FirstName,
-                LastName = employee.LastName,
-                SupervisorId = employee.SupervisorId?.ToString() ?? string.Empty
+                Id = employee.Id.Value.ToString(),
+                FirstName = employee.FullName.FirstName,
+                LastName = employee.FullName.LastName,
+                SupervisorId = employee.SupervisorId?.Value.ToString() ?? string.Empty
             });
         }
 

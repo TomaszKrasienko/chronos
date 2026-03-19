@@ -1,5 +1,3 @@
-using chronos.employees.core.Domain;
-
 namespace chronos.employees.core.Services;
 
 /// <summary>
@@ -10,7 +8,11 @@ public interface IEmployeeCache
     /// <summary>
     /// Adds an employee to the cache
     /// </summary>
-    /// <param name="employee">The employee to cache</param>
+    /// <param name="id">Employee ID</param>
+    /// <param name="firstName">First name</param>
+    /// <param name="lastName">Last name</param>
+    /// <param name="email">Email address</param>
+    /// <param name="supervisorId">Optional supervisor ID</param>
     /// <param name="cancellationToken">Cancellation token</param>
     Task CreateAsync(
         Ulid id,

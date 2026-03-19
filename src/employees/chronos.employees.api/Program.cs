@@ -42,11 +42,11 @@ app.MapGet(
         var employees = await employeeService.GetAllAsync(cancellationToken);
 
         var employeeDtos = employees.Select(e => new EmployeeDto(
-            e.Id.ToString(),
-            e.FirstName,
-            e.LastName,
-            e.Email,
-            e.SupervisorId?.ToString())).ToList();
+            e.Id.Value.ToString(),
+            e.FullName.FirstName,
+            e.FullName.LastName,
+            e.Email.Value,
+            e.SupervisorId?.Value.ToString())).ToList();
 
         return Results.Ok(employeeDtos);
     })
@@ -107,11 +107,11 @@ app.MapGet(
         }
 
         var employeeDto = new EmployeeDto(
-            employee.Id.ToString(),
-            employee.FirstName,
-            employee.LastName,
-            employee.Email,
-            employee.SupervisorId?.ToString());
+            employee.Id.Value.ToString(),
+            employee.FullName.FirstName,
+            employee.FullName.LastName,
+            employee.Email.Value,
+            employee.SupervisorId?.Value.ToString());
 
         return Results.Ok(employeeDto);
     })
@@ -130,11 +130,11 @@ app.MapGet(
             cancellationToken);
 
         var subordinateDtos = subordinates.Select(e => new EmployeeDto(
-            e.Id.ToString(),
-            e.FirstName,
-            e.LastName,
-            e.Email,
-            e.SupervisorId?.ToString())).ToList();
+            e.Id.Value.ToString(),
+            e.FullName.FirstName,
+            e.FullName.LastName,
+            e.Email.Value,
+            e.SupervisorId?.Value.ToString())).ToList();
 
         return Results.Ok(subordinateDtos);
     })
