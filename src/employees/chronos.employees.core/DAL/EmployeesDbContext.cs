@@ -1,4 +1,5 @@
 using chronos.employees.core.Domain;
+using chronos.employees.core.Domain.Identifiers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MongoDB.EntityFrameworkCore.Extensions;
@@ -12,9 +13,13 @@ internal sealed class EmployeesDbContext(
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        var ulidConverter = new ValueConverter<Ulid, string>(
-            v => v.ToString(),
-            v => Ulid.Parse(v));
+        var employeeIdConverter = new ValueConverter<EmployeeId, string>(
+            v => v.Value.ToString(),
+            v => new EmployeeId(Ulid.Parse(v)));
+
+        var nullableEmployeeIdConverter = new ValueConverter<EmployeeId?, string?>(
+            v => v.HasValue ? v.Value.Value.ToString() : null,
+            v => v != null ? new EmployeeId(Ulid.Parse(v)) : null);
 
         modelBuilder
             .Entity<Employee>()
@@ -28,30 +33,34 @@ internal sealed class EmployeesDbContext(
             .Entity<Employee>()
             .Property(x => x.Id)
             .HasElementName("_id")
-            .HasConversion(ulidConverter);
-        
-        modelBuilder
-            .Entity<Employee>()
-            .Property(x => x.FirstName)
-            .IsRequired()
-            .HasElementName("FirstName");
+            .HasConversion(employeeIdConverter);
 
         modelBuilder
             .Entity<Employee>()
-            .Property(x => x.LastName)
-            .IsRequired()
-            .HasElementName("LastName");
+            .OwnsOne(x => x.FullName, fullName =>
+            {
+                fullName.Property(f => f.FirstName)
+                    .IsRequired()
+                    .HasElementName("FirstName");
+
+                fullName.Property(f => f.LastName)
+                    .IsRequired()
+                    .HasElementName("LastName");
+            });
 
         modelBuilder
             .Entity<Employee>()
-            .Property(x => x.Email)
-            .IsRequired()
-            .HasElementName("Email");
+            .OwnsOne(x => x.Email, email =>
+            {
+                email.Property(e => e.Value)
+                    .IsRequired()
+                    .HasElementName("Email");
+            });
 
         modelBuilder
             .Entity<Employee>()
             .Property(x => x.SupervisorId)
             .HasElementName("SupervisorId")
-            .HasConversion(ulidConverter);
+            .HasConversion(nullableEmployeeIdConverter);
     }
 }

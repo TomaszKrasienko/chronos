@@ -1,48 +1,68 @@
+using chronos.employees.core.Domain.Identifiers;
+using chronos.employees.core.Domain.Rules;
+using chronos.employees.core.Domain.ValueObjects;
+using chronos.shared.kernel;
+
 namespace chronos.employees.core.Domain;
 
-public sealed class Employee
+/// <summary>
+/// Aggregate root representing an employee in the system.
+/// </summary>
+public sealed class Employee : AggregateRoot<EmployeeId>
 {
-    public Ulid Id { get; private set; }
-    public string FirstName { get; private set; }
-    public string LastName { get; private set; }
-    public string Email { get; private set; }
-    public Ulid? SupervisorId { get; private set; }
+    /// <summary>
+    /// Gets the employee's full name.
+    /// </summary>
+    public FullName FullName { get; private set; }
 
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
+    /// <summary>
+    /// Gets the employee's email address.
+    /// </summary>
+    public Email Email { get; private set; }
+
+    /// <summary>
+    /// Gets the supervisor's employee identifier, if assigned.
+    /// </summary>
+    public EmployeeId? SupervisorId { get; private set; }
+
+#pragma warning disable CS8618
     private Employee()
     {
     }
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
+#pragma warning restore CS8618
 
     private Employee(
-        Ulid id,
-        string firstName,
-        string lastName,
-        string email,
-        Ulid? supervisorId)
+        EmployeeId id,
+        FullName fullName,
+        Email email) : base(id)
     {
-        Id = id;
-        FirstName = firstName;
-        LastName = lastName;
+        FullName = fullName;
         Email = email;
+    }
+
+    /// <summary>
+    /// Creates a new employee with the specified name and email.
+    /// </summary>
+    /// <param name="fullName">The employee's full name.</param>
+    /// <param name="email">The employee's email address.</param>
+    public static Employee Create(FullName fullName, Email email)
+        => new(EmployeeId.New(), fullName, email);
+
+    /// <summary>
+    /// Assigns a supervisor to this employee.
+    /// </summary>
+    /// <param name="supervisorId">The supervisor's employee identifier.</param>
+    public void AssignSupervisor(EmployeeId supervisorId)
+    {
+        CheckRule(new SupervisorCannotBeSelfRule(Id, supervisorId));
         SupervisorId = supervisorId;
     }
 
-    public static Employee Create(
-        Ulid id,
-        string firstName,
-        string lastName,
-        string email,
-        Ulid? supervisorId)
-        => new(
-            id,
-            firstName,
-            lastName,
-            email,
-            supervisorId);
-
-    public void ChangeSupervisor(Ulid supervisorId)
+    /// <summary>
+    /// Removes the supervisor assignment from this employee.
+    /// </summary>
+    public void RemoveSupervisor()
     {
-        SupervisorId = supervisorId;
+        SupervisorId = null;
     }
 }

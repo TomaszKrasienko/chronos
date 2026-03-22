@@ -10,9 +10,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Bounded context: Employee
   - Aggregate Employee: Base information about person: FirstName, LastName, Email, Supervisor
 
-- Bounded Context: Contracts - TODO
-  - Aggregate Contract: Base information about working hours per month grouped by projects. Also information about contract - assignment date, closing date, company name, contract supervisor
-  - Entity: Employee: List of employees assigned to contract. In assignment there are hours of employee.
+- Bounded Context: Contracts
+  - Aggregate Contract: Company details (VO), contract period (assignment date, closing date), list of employees
+  - Entity ContractEmployee: EmployeeId (Ulid reference), AssignmentPeriod (VO: from/to DateOnly), AllocatedHours
 
 - Bounded Context: TimeLogs - TODO
   - Aggregate MonthlyTimeReport: Aggregates every time log for contract and user
@@ -41,6 +41,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 # Build entire solution
 dotnet build
 
+# Run all tests
+dotnet test
+
 # Run individual service (from repo root)
 dotnet run --project src/employees/chronos.employees.api
 
@@ -57,7 +60,10 @@ cd chronos_scripts/builds && ./employees.sh
 Every microservice follows this pattern in `src/{name}/`:
 - `chronos.{name}.api` - ASP.NET Core Web API (endpoints, DTOs)
 - `chronos.{name}.core` - Business logic with subdirectories:
-  - `Domain/` - OOP domain models
+  - `Domain/` - OOP domain models with subdirectories:
+    - `Identifiers/` - Strongly-typed IDs
+    - `Rules/` - Business rules implementing `IBusinessRule`
+    - `ValueObjects/` - Value objects
   - `DAL/` - MongoDB with EF Core, one DbContext per service (e.g., `EmployeesDbContext`)
   - `Events/` - Integration events for event-driven architecture
   - `Communication/` - Async (RabbitMQ) and Sync (gRPC) communication
@@ -72,7 +78,7 @@ public static IServiceCollection Add{FeatureName}(this IServiceCollection servic
 Main entry point is `AddCore()` which chains: `AddDal()`, `AddCommunication()`, etc.
 
 ### Shared Libraries
-- `chronos.shared.kernel` - DDD building blocks (IEntityId, Entity, AggregateRoot, ValueObject)
+- `chronos.shared.kernel` - DDD building blocks (IEntityId, Entity, AggregateRoot, ValueObject, IBusinessRule, DomainException)
 - `chronos.shared.configuration` - Configuration utilities
 - `chronos.shared.exceptions` - Exception handling middleware
 - `chronos.shared.identity-context` - Employee context from HTTP headers
@@ -80,10 +86,15 @@ Main entry point is `AddCore()` which chains: `AddDal()`, `AddCommunication()`, 
 - `chronos.shared.messaging.rabbit-mq` - RabbitMQ implementation
 
 ### Domain Modeling
-- Strongly-typed IDs: `readonly record struct` implementing `IEntityId`
+- Strongly-typed IDs: `readonly record struct` implementing `IEntityId` with `New()` factory method
 - Aggregates inherit from `AggregateRoot<TId>`
 - Entities inherit from `Entity<TId>`
 - Value objects inherit from `ValueObject`
+- Business rules: `sealed` classes implementing `IBusinessRule` with `Code` property and `IsBroken()` method, placed in `Rules/` folder
+- Validation: use `CheckRule(new SomeRule(...))` in Entity/ValueObject - throws `DomainException` with error code
+- Use primary constructors where possible
+- Delete operations should be idempotent (no exception when entity not found)
+- One employee can have only one assignment per contract (no overlapping periods)
 
 ## Technologies
 
@@ -103,6 +114,37 @@ Main entry point is `AddCore()` which chains: `AddDal()`, `AddCommunication()`, 
 
 ### Namespaces
 Extension class should have namespace of extended object - e.g. IServiceCollection 
+
+## Testing
+
+### Test Project Structure
+```
+tests/
+├── shared/chronos.tests.shared/
+│   └── Factories/           # Shared test factories
+└── {name}/chronos.{name}.core.tests/
+    └── Domain/
+        ├── {Aggregate}/     # Folder per aggregate (e.g., Contracts/)
+        │   ├── CreateTests.cs
+        │   ├── {Method}Tests.cs
+        └── ValueObjects/
+            └── {ValueObject}/  # Folder per VO (e.g., AssignmentPeriod/)
+                ├── CreateTests.cs
+                └── EqualityTests.cs
+```
+
+### Test Conventions
+- Use Shouldly for assertions
+- Naming convention: `Given{State}_When{Action}_Then{Result}`
+- For DomainException tests: `Then{Result}WithCode_{error_code}`
+- All test classes must be `sealed`
+- Separate Arrange / Act / Assert sections with comments
+- Factories in shared project with private default values
+
+### Test Libraries
+- xUnit as test framework
+- Shouldly for assertions
+- Factories pattern for test data creation
 
 ## Git Workflow
 - Main branch: `main`

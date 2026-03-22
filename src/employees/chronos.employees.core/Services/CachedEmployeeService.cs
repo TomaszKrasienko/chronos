@@ -1,4 +1,6 @@
 using chronos.employees.core.Domain;
+using chronos.employees.core.Domain.Identifiers;
+using chronos.employees.core.Domain.ValueObjects;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
@@ -25,7 +27,7 @@ internal sealed class CachedEmployeeService(
             supervisorId,
             cancellationToken);
 
-        var cacheKey = GetCacheKey(employee.Id);
+        var cacheKey = GetCacheKey(employee.Id.Value);
         memoryCache.Set(cacheKey, employee, CacheDuration);
 
         return employee;
@@ -39,7 +41,7 @@ internal sealed class CachedEmployeeService(
             employeeId,
             supervisorId,
             cancellationToken);
-    
+
 
     public async Task<Employee?> GetByIdAsync(
         Ulid employeeId,
@@ -83,8 +85,16 @@ internal sealed class CachedEmployeeService(
         Ulid? supervisorId,
         CancellationToken cancellationToken)
     {
-        var employee = Employee.Create(id, firstName, lastName, email, supervisorId);
-        var cacheKey = GetCacheKey(employee.Id);
+        var fullName = FullName.Create(firstName, lastName);
+        var emailVo = Email.Create(email);
+        var employee = Employee.Create(fullName, emailVo);
+
+        if (supervisorId.HasValue)
+        {
+            employee.AssignSupervisor(new EmployeeId(supervisorId.Value));
+        }
+
+        var cacheKey = GetCacheKey(id);
         memoryCache.Set(cacheKey, employee, CacheDuration);
         return Task.CompletedTask;
     }
