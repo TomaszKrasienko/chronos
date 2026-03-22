@@ -9,6 +9,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\..\src\contracts\chronos.contracts.core\chronos.contracts.core.csproj" />
+        <ProjectReference Include="..\..\..\src\employees\chronos.employees.core\chronos.employees.core.csproj" />
     </ItemGroup>
 
 </Project>

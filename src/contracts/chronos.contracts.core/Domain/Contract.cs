@@ -1,3 +1,4 @@
+using chronos.contracts.core.Domain.Events;
 using chronos.contracts.core.Domain.Identifiers;
 using chronos.contracts.core.Domain.Rules;
 using chronos.contracts.core.Domain.ValueObjects;
@@ -50,10 +51,20 @@ public sealed class Contract : AggregateRoot<ContractId>
     public static Contract Create(
         CompanyDetails companyDetails,
         ContractPeriod contractPeriod)
-        => new(
+    {
+        var contract = new Contract(
             ContractId.New(),
             companyDetails,
             contractPeriod);
+
+        contract.AddDomainEvent(new ContractCreatedEvent(
+            contract.Id,
+            companyDetails.Name,
+            contractPeriod.AssignmentDate,
+            contractPeriod.ClosingDate));
+
+        return contract;
+    }
 
     /// <summary>
     /// Assigns an employee to this contract with specified period and hours.
@@ -67,9 +78,17 @@ public sealed class Contract : AggregateRoot<ContractId>
         int allocatedHours)
     {
         CheckRule(new EmployeeAlreadyAssignedToContractRule(_employees, employeeId));
-        
+
         var employee = ContractEmployee.Create(employeeId, assignmentPeriod, allocatedHours);
         _employees.Add(employee);
+
+        AddDomainEvent(new EmployeeAssignedEvent(
+            Id,
+            employee.Id,
+            employeeId,
+            assignmentPeriod.From,
+            assignmentPeriod.To,
+            allocatedHours));
     }
 
     /// <summary>
@@ -82,6 +101,11 @@ public sealed class Contract : AggregateRoot<ContractId>
         if (employee is not null)
         {
             _employees.Remove(employee);
+
+            AddDomainEvent(new EmployeeRemovedEvent(
+                Id,
+                contractEmployeeId,
+                employee.EmployeeId));
         }
     }
 
@@ -93,9 +117,15 @@ public sealed class Contract : AggregateRoot<ContractId>
     public void UpdateEmployeeAllocatedHours(ContractEmployeeId contractEmployeeId, int allocatedHours)
     {
         CheckRule(new EmployeeAssignmentMustExistRule(_employees, contractEmployeeId));
-        
+
         var employee = _employees.Single(e => e.Id == contractEmployeeId);
         employee.UpdateAllocatedHours(allocatedHours);
+
+        AddDomainEvent(new EmployeeHoursUpdatedEvent(
+            Id,
+            contractEmployeeId,
+            employee.EmployeeId,
+            allocatedHours));
     }
 
     /// <summary>
@@ -103,5 +133,9 @@ public sealed class Contract : AggregateRoot<ContractId>
     /// </summary>
     /// <param name="closingDate">The closing date.</param>
     public void CloseContract(DateOnly closingDate)
-        => ContractPeriod = ContractPeriod.Close(closingDate);
+    {
+        ContractPeriod = ContractPeriod.Close(closingDate);
+
+        AddDomainEvent(new ContractClosedEvent(Id, closingDate));
+    }
 }

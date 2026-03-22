@@ -61,6 +61,7 @@ Every microservice follows this pattern in `src/{name}/`:
 - `chronos.{name}.api` - ASP.NET Core Web API (endpoints, DTOs)
 - `chronos.{name}.core` - Business logic with subdirectories:
   - `Domain/` - OOP domain models with subdirectories:
+    - `Events/` - Domain events implementing `IDomainEvent`
     - `Identifiers/` - Strongly-typed IDs
     - `Rules/` - Business rules implementing `IBusinessRule`
     - `ValueObjects/` - Value objects
@@ -78,7 +79,7 @@ public static IServiceCollection Add{FeatureName}(this IServiceCollection servic
 Main entry point is `AddCore()` which chains: `AddDal()`, `AddCommunication()`, etc.
 
 ### Shared Libraries
-- `chronos.shared.kernel` - DDD building blocks (IEntityId, Entity, AggregateRoot, ValueObject, IBusinessRule, DomainException)
+- `chronos.shared.kernel` - DDD building blocks (IEntityId, Entity, AggregateRoot, ValueObject, IBusinessRule, IDomainEvent, DomainException)
 - `chronos.shared.configuration` - Configuration utilities
 - `chronos.shared.exceptions` - Exception handling middleware
 - `chronos.shared.identity-context` - Employee context from HTTP headers
@@ -95,6 +96,13 @@ Main entry point is `AddCore()` which chains: `AddDal()`, `AddCommunication()`, 
 - Use primary constructors where possible
 - Delete operations should be idempotent (no exception when entity not found)
 - One employee can have only one assignment per contract (no overlapping periods)
+
+### Domain Events
+- Domain events are `sealed record` types implementing `IDomainEvent`, placed in `Domain/Events/` folder
+- Every domain method in aggregates should raise domain events using `AddDomainEvent(new SomeEvent(...))`
+- Events contain all relevant data (IDs, values) - not references to domain objects
+- Domain events are NOT persisted to database - they are dispatched after successful save operation
+- Use `ClearDomainEvents()` after publishing events
 
 ## Technologies
 
