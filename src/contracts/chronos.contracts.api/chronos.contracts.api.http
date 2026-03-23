@@ -1,0 +1,54 @@
+@host_address = http://localhost:5003
+
+### Create Contract
+# @name create_contract
+POST {{host_address}}/api/contracts
+Content-Type: application/json
+
+{
+  "companyName": "Acme Corporation",
+  "assignmentDate": "2026-04-01"
+}
+
+###
+@contract_id = {{create_contract.response.body.$}}
+
+### Assign Employee to Contract
+# @name assign_employee
+POST {{host_address}}/api/contracts/{{contract_id}}/employees
+Content-Type: application/json
+
+{
+  "employeeId": "01JQDX0000000000000000000",
+  "from": "2026-04-01",
+  "to": "2026-12-31",
+  "allocatedHours": 160
+}
+
+###
+@contract_employee_id = {{assign_employee.response.body.$}}
+
+### Update Employee Allocated Hours
+PATCH {{host_address}}/api/contracts/{{contract_id}}/employees/{{contract_employee_id}}/allocated-hours
+Content-Type: application/json
+
+{
+  "allocatedHours": 200
+}
+
+### Remove Employee from Contract
+DELETE {{host_address}}/api/contracts/{{contract_id}}/employees/{{contract_employee_id}}
+
+### Close Contract
+PATCH {{host_address}}/api/contracts/{{contract_id}}/close
+Content-Type: application/json
+
+{
+  "closingDate": "2026-12-31"
+}
+
+### Health Check - Live
+GET {{host_address}}/health/live
+
+### Health Check - Ready
+GET {{host_address}}/health/ready

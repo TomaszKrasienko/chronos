@@ -14,13 +14,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   - Aggregate Contract: Company details (VO), contract period (assignment date, closing date), list of employees
   - Entity ContractEmployee: EmployeeId (Ulid reference), AssignmentPeriod (VO: from/to DateOnly), AllocatedHours
 
-- Bounded Context: TimeLogs - TODO
-  - Aggregate MonthlyTimeReport: Aggregates every time log for contract and user
-  - Entity TimeLog (Abstract): Information about logged time. Time is logged by employee. TimeLog should know about employeeId, amount of hours and contract - at the beginning contract will be replaced by topic. TimeLog has to have a place for notes.
-    - Implementations of TimeLog
-      - AcceptedTimeLog - after acceptance from supervisor or after automatic acceptance, with additional field AcceptedBy
-      - RejectedTimeLog - after rejection, with additional fields Reason, RejectedBy
-      - WaitingForAcceptation - with additional field - SupervisorId
+- Bounded Context: TimeLogs
+  - Aggregate MonthlyTimeReport: Aggregates every time log for contract and user per month
+  - Entity TimeLog (Abstract): Information about logged time with EmployeeId, ContractId, Hours, Topic, Notes
+    - WaitingForAcceptation - initial state with SupervisorId
+    - AcceptedTimeLog - after acceptance with AcceptedBy, AcceptedAt
+    - RejectedTimeLog - after rejection with Reason, RejectedBy, RejectedAt
   
 ### Additional modules
 - Notifications
@@ -58,15 +57,17 @@ cd chronos_scripts/builds && ./employees.sh
 
 ### Microservice Structure
 Every microservice follows this pattern in `src/{name}/`:
-- `chronos.{name}.api` - ASP.NET Core Web API (endpoints, DTOs)
+- `chronos.{name}.api` - ASP.NET Core Web API (endpoints only)
 - `chronos.{name}.core` - Business logic with subdirectories:
   - `Domain/` - OOP domain models with subdirectories:
     - `Events/` - Domain events implementing `IDomainEvent`
-    - `Identifiers/` - Strongly-typed IDs
     - `Rules/` - Business rules implementing `IBusinessRule`
     - `ValueObjects/` - Value objects
+  - `DTOs/` - Request and Response DTOs with subdirectories:
+    - `Requests/` - Request DTOs
+    - `Responses/` - Response DTOs
   - `DAL/` - MongoDB with EF Core, one DbContext per service (e.g., `EmployeesDbContext`)
-  - `Events/` - Integration events for event-driven architecture
+  - `Events/` - Integration events for event-driven architecture (sealed records with strongly-typed IDs)
   - `Communication/` - Async (RabbitMQ) and Sync (gRPC) communication
   - `Services/` - Application services
   - `Configuration/` - DI extensions
@@ -79,7 +80,7 @@ public static IServiceCollection Add{FeatureName}(this IServiceCollection servic
 Main entry point is `AddCore()` which chains: `AddDal()`, `AddCommunication()`, etc.
 
 ### Shared Libraries
-- `chronos.shared.kernel` - DDD building blocks (IEntityId, Entity, AggregateRoot, ValueObject, IBusinessRule, IDomainEvent, DomainException)
+- `chronos.shared.kernel` - DDD building blocks (IEntityId, Entity, AggregateRoot, ValueObject, IBusinessRule, IDomainEvent, DomainException) and strongly-typed identifiers in `Identifiers/` folder
 - `chronos.shared.configuration` - Configuration utilities
 - `chronos.shared.exceptions` - Exception handling middleware
 - `chronos.shared.identity-context` - Employee context from HTTP headers
@@ -87,7 +88,7 @@ Main entry point is `AddCore()` which chains: `AddDal()`, `AddCommunication()`, 
 - `chronos.shared.messaging.rabbit-mq` - RabbitMQ implementation
 
 ### Domain Modeling
-- Strongly-typed IDs: `readonly record struct` implementing `IEntityId` with `New()` factory method
+- Strongly-typed IDs: `readonly record struct` implementing `IEntityId` with `New()` factory method, placed in `chronos.shared.kernel/Identifiers/` for cross-module reuse (e.g., in events)
 - Aggregates inherit from `AggregateRoot<TId>`
 - Entities inherit from `Entity<TId>`
 - Value objects inherit from `ValueObject`
@@ -148,10 +149,17 @@ tests/
 - All test classes must be `sealed`
 - Separate Arrange / Act / Assert sections with comments
 - Factories in shared project with private default values
+- **Class structure:** Place constructor and fields at the bottom of the test class, test methods first
+
+### Service Tests
+- Use NSubstitute for mocking dependencies
+- Place in `Services/{ServiceName}Tests/` folder with one file per method
+- Structure: `{MethodName}Tests.cs` (e.g., `CreateContractAsyncTests.cs`)
 
 ### Test Libraries
 - xUnit as test framework
 - Shouldly for assertions
+- NSubstitute for mocking (service tests)
 - Factories pattern for test data creation
 
 ## Git Workflow

@@ -1,4 +1,3 @@
-using chronos.contracts.core.Services;
 using Microsoft.Extensions.Configuration;
 
 // ReSharper disable once CheckNamespace
@@ -10,12 +9,8 @@ public static class CoreServicesExtensions
         this IServiceCollection services,
         IConfiguration configuration)
         => services
+            .AddSingleton(TimeProvider.System)
             .AddDal(configuration)
-            .AddServices();
-
-    private static IServiceCollection AddServices(this IServiceCollection services)
-    {
-        services.AddScoped<IContractsService, ContractsService>();
-        return services;
-    }
+            .AddCommunication(configuration)
+            .AddRabbitMq(configuration);
 }
