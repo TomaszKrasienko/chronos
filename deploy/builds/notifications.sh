@@ -1,6 +1,6 @@
 # !/bin/bash
 
-IMAGE="chronos/time-reports"
+IMAGE="chronos/notifications"
 
 # Pobierz aktualny tag
 CURRENT=$(docker images $IMAGE --format "{{.Tag}}" | head -1)
@@ -17,4 +17,4 @@ echo "Aktualna: ${CURRENT:-brak}"
 echo "Nowa: $VERSION"
 
 cd ./../../src
-docker build --platform linux/amd64 -f ./time-reports/Dockerfile -t $IMAGE:$VERSION -t $IMAGE:latest .
+docker build --platform linux/amd64 -f ./notifications/Dockerfile -t $IMAGE:$VERSION -t $IMAGE:latest .
