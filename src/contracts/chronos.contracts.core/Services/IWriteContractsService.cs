@@ -3,9 +3,9 @@ using chronos.contracts.core.Domain.Identifiers;
 namespace chronos.contracts.core.Services;
 
 /// <summary>
-/// Service for managing contracts.
+/// Service for writing contract data.
 /// </summary>
-public interface IContractsService
+public interface IWriteContractsService
 {
     /// <summary>
     /// Creates a new contract with company details.

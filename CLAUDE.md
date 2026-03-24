@@ -65,7 +65,8 @@ Every microservice follows this pattern in `src/{name}/`:
     - `ValueObjects/` - Value objects
   - `DTOs/` - Request and Response DTOs with subdirectories:
     - `Requests/` - Request DTOs
-    - `Responses/` - Response DTOs
+    - `Responses/` - Response DTOs (use simple types like `string` for IDs, not strongly-typed IDs)
+    - `Mappers/` - Extension classes for mapping domain objects to DTOs
   - `DAL/` - MongoDB with EF Core, one DbContext per service (e.g., `EmployeesDbContext`)
   - `Events/` - Integration events for event-driven architecture (sealed records with strongly-typed IDs)
   - `Communication/` - Async (RabbitMQ) and Sync (gRPC) communication
@@ -120,9 +121,16 @@ Main entry point is `AddCore()` which chains: `AddDal()`, `AddCommunication()`, 
 - Domain models use OOP with business logic encapsulated
 - Uses Ulid for identifiers (not Guid)
 - Project settings: `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>`
+- XML summary: when referencing types/methods, use `<see cref="TypeName"/>` instead of plain text
 
 ### Namespaces
-Extension class should have namespace of extended object - e.g. IServiceCollection 
+Extension class should have namespace of extended object - e.g. IServiceCollection
+
+### Mappers
+- Place mappers in `DTOs/Mappers/` folder as static extension classes
+- Mapper extension class namespace must match the namespace of the extended class (e.g., `chronos.contracts.core.Domain` for `Contract` extensions)
+- Public method: `ToDto()` extension method on the aggregate
+- Private methods for mapping child entities/value objects 
 
 ## Testing
 

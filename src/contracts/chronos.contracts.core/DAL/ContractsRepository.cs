@@ -9,6 +9,9 @@ internal sealed class ContractsRepository(ContractsDbContext dbContext) : IContr
     public async Task<Contract?> GetByIdAsync(ContractId id, CancellationToken cancellationToken = default)
         => await dbContext.Contracts.SingleOrDefaultAsync(x => x.Id == id, cancellationToken);
 
+    public async Task<IReadOnlyList<Contract>> GetAllAsync(CancellationToken cancellationToken = default)
+        => await dbContext.Contracts.ToListAsync(cancellationToken);
+
     public async Task<bool> ExistsByCompanyNameAsync(string companyName, CancellationToken cancellationToken = default)
         => await dbContext.Contracts.AnyAsync(x => x.CompanyDetails.Name == companyName, cancellationToken);
 

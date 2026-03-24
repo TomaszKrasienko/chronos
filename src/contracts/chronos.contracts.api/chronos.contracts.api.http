@@ -1,4 +1,10 @@
-@host_address = http://localhost:5003
+@host_address = http://localhost:5000
+
+### Get All Contracts
+GET {{host_address}}/api/contracts
+
+### Get Contract by Id
+GET {{host_address}}/api/contracts/{{contract_id}}
 
 ### Create Contract
 # @name create_contract

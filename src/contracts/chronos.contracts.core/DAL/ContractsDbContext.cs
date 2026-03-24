@@ -29,10 +29,6 @@ internal sealed class ContractsDbContext(
             v => v.ToString("yyyy-MM-dd"),
             v => DateOnly.Parse(v));
 
-        var nullableDateOnlyConverter = new ValueConverter<DateOnly?, string?>(
-            v => v.HasValue ? v.Value.ToString("yyyy-MM-dd") : null,
-            v => v != null ? DateOnly.Parse(v) : null);
-
         modelBuilder
             .Entity<Contract>()
             .ToCollection("contracts");
@@ -67,7 +63,7 @@ internal sealed class ContractsDbContext(
 
                 contractPeriod.Property(c => c.ClosingDate)
                     .HasElementName("ClosingDate")
-                    .HasConversion(nullableDateOnlyConverter);
+                    .HasConversion(dateOnlyConverter);
             });
 
         modelBuilder

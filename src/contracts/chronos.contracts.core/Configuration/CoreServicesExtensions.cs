@@ -15,7 +15,8 @@ public static class CoreServicesExtensions
 
     private static IServiceCollection AddServices(this IServiceCollection services)
     {
-        services.AddScoped<IContractsService, ContractsService>();
+        services.AddScoped<IWriteContractsService, ContractsService>();
+        services.AddScoped<IReadContractsService, ContractsService>();
         return services;
     }
 }
