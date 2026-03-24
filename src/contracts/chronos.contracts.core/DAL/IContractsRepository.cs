@@ -17,6 +17,13 @@ public interface IContractsRepository
     Task<Contract?> GetByIdAsync(ContractId id, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Gets all contracts.
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>List of all contracts.</returns>
+    Task<IReadOnlyList<Contract>> GetAllAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Checks if a contract with the specified company name exists.
     /// </summary>
     /// <param name="companyName">The company name.</param>

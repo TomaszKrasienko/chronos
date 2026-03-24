@@ -8,11 +8,20 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.10" />
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.10" />
+        <InternalsVisibleTo Include="chronos.contracts.core.tests" />
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.10" />
+        <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.10" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.10" />
+        <PackageReference Include="Microsoft.Extensions.Options" Version="9.0.10" />
+        <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.10" />
+        <PackageReference Include="MongoDB.EntityFrameworkCore" Version="9.0.3" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\shared\chronos.shared.configuration\chronos.shared.configuration.csproj" />
         <ProjectReference Include="..\..\shared\chronos.shared.kernel\chronos.shared.kernel.csproj" />
     </ItemGroup>
 

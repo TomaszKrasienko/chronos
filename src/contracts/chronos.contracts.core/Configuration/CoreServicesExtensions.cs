@@ -9,9 +9,14 @@ public static class CoreServicesExtensions
     public static IServiceCollection AddCore(
         this IServiceCollection services,
         IConfiguration configuration)
-    {
-        services.AddScoped<IContractsService, ContractsService>();
+        => services
+            .AddDal(configuration)
+            .AddServices();
 
+    private static IServiceCollection AddServices(this IServiceCollection services)
+    {
+        services.AddScoped<IWriteContractsService, ContractsService>();
+        services.AddScoped<IReadContractsService, ContractsService>();
         return services;
     }
 }

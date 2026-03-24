@@ -32,11 +32,41 @@ if (!app.Environment.IsDevelopment())
     app.UseHttpsRedirection();
 }
 
+app.MapGet(
+    "/api/contracts",
+    async (
+        IReadContractsService readContractsService,
+        CancellationToken cancellationToken) =>
+    {
+        var contracts = await readContractsService.GetAllAsync(cancellationToken);
+        return Results.Ok(contracts);
+    })
+    .WithName("GetContracts")
+    .WithOpenApi();
+
+app.MapGet(
+    "/api/contracts/{contractId}",
+    async (
+        Ulid contractId,
+        IReadContractsService readContractsService,
+        CancellationToken cancellationToken) =>
+    {
+        var contract = await readContractsService.GetByIdAsync(
+            new ContractId(contractId),
+            cancellationToken);
+
+        return contract is null
+            ? Results.NotFound()
+            : Results.Ok(contract);
+    })
+    .WithName("GetContractById")
+    .WithOpenApi();
+
 app.MapPost(
     "/api/contracts",
     async (
         CreateContractRequestDto request,
-        IContractsService contractsService,
+        IWriteContractsService contractsService,
         CancellationToken cancellationToken) =>
     {
         var result = await contractsService.CreateContractAsync(
@@ -54,7 +84,7 @@ app.MapPost(
     async (
         Ulid contractId,
         AssignEmployeeRequestDto request,
-        IContractsService contractsService,
+        IWriteContractsService contractsService,
         CancellationToken cancellationToken) =>
     {
         await contractsService.AssignEmployeeAsync(
@@ -75,7 +105,7 @@ app.MapDelete(
     async (
         Ulid contractId,
         Ulid contractEmployeeId,
-        IContractsService contractsService,
+        IWriteContractsService contractsService,
         CancellationToken cancellationToken) =>
     {
         await contractsService.RemoveEmployeeAsync(
@@ -94,7 +124,7 @@ app.MapPatch(
         Ulid contractId,
         Ulid contractEmployeeId,
         UpdateAllocatedHoursRequestDto request,
-        IContractsService contractsService,
+        IWriteContractsService contractsService,
         CancellationToken cancellationToken) =>
     {
         await contractsService.UpdateEmployeeAllocatedHoursAsync(
@@ -113,7 +143,7 @@ app.MapPatch(
     async (
         Ulid contractId,
         CloseContractRequestDto request,
-        IContractsService contractsService,
+        IWriteContractsService contractsService,
         CancellationToken cancellationToken) =>
     {
         await contractsService.CloseContractAsync(

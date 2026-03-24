@@ -2,6 +2,7 @@ using chronos.contracts.core.DAL;
 using chronos.contracts.core.Domain;
 using chronos.contracts.core.Domain.Identifiers;
 using chronos.contracts.core.Domain.ValueObjects;
+using chronos.contracts.core.DTOs.Responses;
 using chronos.shared.kernel.Exceptions;
 
 namespace chronos.contracts.core.Services;
@@ -9,7 +10,8 @@ namespace chronos.contracts.core.Services;
 /// <summary>
 /// Service for managing contracts.
 /// </summary>
-internal sealed class ContractsService(IContractsRepository contractsRepository) : IContractsService
+internal sealed class ContractsService(IContractsRepository contractsRepository)
+    : IWriteContractsService, IReadContractsService
 {
     public async Task<ContractId> CreateContractAsync(
         string companyName,
@@ -81,6 +83,23 @@ internal sealed class ContractsService(IContractsRepository contractsRepository)
         contract.CloseContract(closingDate);
 
         await contractsRepository.UpdateAsync(contract, cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public async Task<ContractResponseDto?> GetByIdAsync(
+        ContractId contractId,
+        CancellationToken cancellationToken = default)
+    {
+        var contract = await contractsRepository.GetByIdAsync(contractId, cancellationToken);
+        return contract?.ToDto();
+    }
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<ContractResponseDto>> GetAllAsync(
+        CancellationToken cancellationToken = default)
+    {
+        var contracts = await contractsRepository.GetAllAsync(cancellationToken);
+        return contracts.Select(c => c.ToDto()).ToList();
     }
 
     private async Task<Contract> GetContractAsync(
