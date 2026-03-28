@@ -7,7 +7,8 @@ Content-Type: application/json
 
 {
   "firstName": "Joe",
-  "lastName": "Doen",
+  "lastName": "Doe",
+  "email": "j.doe@gmail.com",
   "supervisorId": null
 }
 
@@ -48,3 +49,6 @@ Content-Type: application/json
 
 ### Assign Supervisor to Employee
 PATCH {{host_address}}/api/employees/{{employee_without_supervisor_id}}/supervisors/{{supervisor_id}}
+
+### Delete Employee
+DELETE {{host_address}}/api/employees/{{employee_without_supervisor_id}}

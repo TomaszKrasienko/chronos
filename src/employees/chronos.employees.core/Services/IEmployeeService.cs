@@ -67,6 +67,13 @@ public interface IEmployeeService
     Task<IReadOnlyCollection<Employee>> GetSubordinatesAsync(
         Ulid supervisorId,
         CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Deletes an employee (soft delete)
+    /// </summary>
+    /// <param name="employeeId">Employee's ID</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    Task DeleteAsync(Ulid employeeId, CancellationToken cancellationToken);
 }
 
 internal sealed class EmployeeService(
@@ -171,5 +178,25 @@ internal sealed class EmployeeService(
             .AsNoTracking()
             .Where(e => e.SupervisorId == new EmployeeId(supervisorId))
             .ToListAsync(cancellationToken);
+    }
+
+    public async Task DeleteAsync(Ulid employeeId, CancellationToken cancellationToken)
+    {
+        var employee = await dbContext.Employees
+            .SingleOrDefaultAsync(
+                e => e.Id == new EmployeeId(employeeId),
+                cancellationToken);
+
+        if (employee is null)
+        {
+            return;
+        }
+
+        employee.Delete();
+
+        var @event = new EmployeeDeleted(employeeId);
+
+        await messagePublisher.Send(@event, cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
     }
 }

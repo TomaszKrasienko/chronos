@@ -156,6 +156,27 @@ app.MapPatch(
     .WithName("CloseContract")
     .WithOpenApi();
 
+app.MapPatch(
+    "/api/contracts/{contractId}/employees/{contractEmployeeId}/assignment-period",
+    async (
+        Ulid contractId,
+        Ulid contractEmployeeId,
+        UpdateEmployeeAssignmentPeriodRequestDto request,
+        IWriteContractsService contractsService,
+        CancellationToken cancellationToken) =>
+    {
+        await contractsService.UpdateEmployeeAssignmentPeriodAsync(
+            new ContractId(contractId),
+            new ContractEmployeeId(contractEmployeeId),
+            request.From,
+            request.To,
+            cancellationToken);
+
+        return Results.NoContent();
+    })
+    .WithName("UpdateEmployeeAssignmentPeriod")
+    .WithOpenApi();
+
 app.MapHealthChecks("/health/live");
 app.MapHealthChecks("/health/ready");
 

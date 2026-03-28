@@ -58,4 +58,20 @@ public sealed class AssignEmployeeTests
         // Assert
         exception.Code.ShouldBe("allocated_hours_must_be_greater_than_zero");
     }
+
+    [Fact]
+    public void GivenAssignmentStartBeforeContractDate_WhenAssigningEmployee_ThenThrowsDomainExceptionWithCode_employee_assignment_cannot_start_before_contract()
+    {
+        // Arrange
+        var contractPeriod = ContractPeriodFactory.Create(assignmentDate: new DateOnly(2024, 6, 1));
+        var contract = ContractFactory.Create(contractPeriod: contractPeriod);
+        var assignmentPeriod = AssignmentPeriodFactory.Create(from: new DateOnly(2024, 1, 1));
+
+        // Act
+        var exception = Should.Throw<DomainException>(
+            () => contract.AssignEmployee(Ulid.NewUlid(), assignmentPeriod, 160));
+
+        // Assert
+        exception.Code.ShouldBe("employee_assignment_cannot_start_before_contract");
+    }
 }

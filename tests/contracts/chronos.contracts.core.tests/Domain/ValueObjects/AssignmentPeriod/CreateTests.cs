@@ -49,4 +49,18 @@ public sealed class CreateTests
         // Assert
         exception.Code.ShouldBe("end_date_cannot_be_before_start_date");
     }
+
+    [Fact]
+    public void GivenNullEndDate_WhenCreating_ThenAssignmentPeriodIsCreated()
+    {
+        // Arrange
+        var from = new DateOnly(2024, 1, 1);
+
+        // Act
+        var period = contracts.core.Domain.ValueObjects.AssignmentPeriod.Create(from, null);
+
+        // Assert
+        period.From.ShouldBe(from);
+        period.To.ShouldBeNull();
+    }
 }

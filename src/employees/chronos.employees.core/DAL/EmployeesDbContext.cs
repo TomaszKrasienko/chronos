@@ -17,10 +17,6 @@ internal sealed class EmployeesDbContext(
             v => v.Value.ToString(),
             v => new EmployeeId(Ulid.Parse(v)));
 
-        var nullableEmployeeIdConverter = new ValueConverter<EmployeeId?, string?>(
-            v => v.HasValue ? v.Value.Value.ToString() : null,
-            v => v != null ? new EmployeeId(Ulid.Parse(v)) : null);
-
         modelBuilder
             .Entity<Employee>()
             .ToCollection("employees");
@@ -61,6 +57,10 @@ internal sealed class EmployeesDbContext(
             .Entity<Employee>()
             .Property(x => x.SupervisorId)
             .HasElementName("SupervisorId")
-            .HasConversion(nullableEmployeeIdConverter);
+            .HasConversion(employeeIdConverter);
+
+        modelBuilder
+            .Entity<Employee>()
+            .HasQueryFilter(x => !x.IsDeleted);
     }
 }

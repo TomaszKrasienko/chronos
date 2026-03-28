@@ -78,6 +78,9 @@ public sealed class Contract : AggregateRoot<ContractId>
         int allocatedHours)
     {
         CheckRule(new EmployeeAlreadyAssignedToContractRule(_employees, employeeId));
+        CheckRule(new EmployeeAssignmentCannotStartBeforeContractRule(
+            ContractPeriod.AssignmentDate,
+            assignmentPeriod.From));
 
         var employee = ContractEmployee.Create(employeeId, assignmentPeriod, allocatedHours);
         _employees.Add(employee);
@@ -137,5 +140,27 @@ public sealed class Contract : AggregateRoot<ContractId>
         ContractPeriod = ContractPeriod.Close(closingDate);
 
         AddDomainEvent(new ContractClosedEvent(Id, closingDate));
+    }
+
+    /// <summary>
+    /// Updates the assignment period for an employee.
+    /// </summary>
+    /// <param name="contractEmployeeId">The contract employee identifier.</param>
+    /// <param name="assignmentPeriod">The new assignment period.</param>
+    public void UpdateEmployeeAssignmentPeriod(
+        ContractEmployeeId contractEmployeeId,
+        AssignmentPeriod assignmentPeriod)
+    {
+        CheckRule(new EmployeeAssignmentMustExistRule(_employees, contractEmployeeId));
+
+        var employee = _employees.Single(e => e.Id == contractEmployeeId);
+        employee.UpdateAssignmentPeriod(assignmentPeriod);
+
+        AddDomainEvent(new EmployeeAssignmentPeriodUpdatedEvent(
+            Id,
+            contractEmployeeId,
+            employee.EmployeeId,
+            assignmentPeriod.From,
+            assignmentPeriod.To));
     }
 }

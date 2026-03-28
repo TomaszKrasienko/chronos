@@ -9,14 +9,16 @@ public static class CoreServicesExtensions
     public static IServiceCollection AddCore(
         this IServiceCollection services,
         IConfiguration configuration)
-        => services
-            .AddDal(configuration)
-            .AddServices();
-
-    private static IServiceCollection AddServices(this IServiceCollection services)
     {
-        services.AddScoped<IWriteContractsService, ContractsService>();
-        services.AddScoped<IReadContractsService, ContractsService>();
+        services
+            .AddDal(configuration)
+            .AddCommunication(configuration)
+            .AddMemoryCache()
+            .AddScoped<IWriteContractsService, ContractsService>()
+            .AddScoped<IReadContractsService, ContractsService>()
+            .Decorate<IReadContractsService, CachedContractsService>()
+            .AddScoped<IContractsCache, CachedContractsService>();
+
         return services;
     }
 }

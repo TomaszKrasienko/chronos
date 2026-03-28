@@ -3,10 +3,9 @@ using chronos.shared.kernel;
 
 namespace chronos.contracts.core.Domain.Events;
 
-public sealed record EmployeeAssignedEvent(
+public sealed record EmployeeAssignmentPeriodUpdatedEvent(
     ContractId ContractId,
     ContractEmployeeId ContractEmployeeId,
     Ulid EmployeeId,
-    DateOnly AssignmentFrom,
-    DateOnly? AssignmentTo,
-    int AllocatedHours) : IDomainEvent;
+    DateOnly From,
+    DateOnly? To) : IDomainEvent;

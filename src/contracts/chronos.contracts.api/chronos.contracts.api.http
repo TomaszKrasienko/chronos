@@ -25,9 +25,9 @@ POST {{host_address}}/api/contracts/{{contract_id}}/employees
 Content-Type: application/json
 
 {
-  "employeeId": "01JQDX0000000000000000000",
+  "employeeId": "01KMTSXVRYYD66K910BCSBJ55Z",
   "from": "2026-04-01",
-  "to": "2026-12-31",
+  "to": null,
   "allocatedHours": 160
 }
 
@@ -51,6 +51,15 @@ Content-Type: application/json
 
 {
   "closingDate": "2026-12-31"
+}
+
+### Update Employee Assignment Period
+PATCH {{host_address}}/api/contracts/{{contract_id}}/employees/{{contract_employee_id}}/assignment-period
+Content-Type: application/json
+
+{
+  "from": "2026-05-01",
+  "to": "2026-12-31"
 }
 
 ### Health Check - Live
