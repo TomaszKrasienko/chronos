@@ -13,16 +13,20 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.10" />
+        <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.10" />
         <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.10" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.10" />
         <PackageReference Include="Microsoft.Extensions.Options" Version="9.0.10" />
         <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.10" />
         <PackageReference Include="MongoDB.EntityFrameworkCore" Version="9.0.3" />
+        <PackageReference Include="Scrutor" Version="5.0.1" />
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\..\shared\chronos.shared.configuration\chronos.shared.configuration.csproj" />
         <ProjectReference Include="..\..\shared\chronos.shared.kernel\chronos.shared.kernel.csproj" />
+        <ProjectReference Include="..\..\shared\chronos.shared.messaging\chronos.shared.messaging.csproj" />
+        <ProjectReference Include="..\..\shared\chronos.shared.messaging.rabbit-mq\chronos.shared.messaging.rabbit-mq.csproj" />
     </ItemGroup>
 
 </Project>

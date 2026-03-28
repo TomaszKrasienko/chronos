@@ -122,6 +122,14 @@ Main entry point is `AddCore()` which chains: `AddDal()`, `AddCommunication()`, 
 - Uses Ulid for identifiers (not Guid)
 - Project settings: `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>`
 - XML summary: when referencing types/methods, use `<see cref="TypeName"/>` instead of plain text
+- Multi-argument formatting: when more than one argument, place each on a new line:
+```csharp
+public sealed record AssignEmployeeRequestDto(
+    Ulid EmployeeId,
+    DateOnly From,
+    DateOnly? To,
+    int AllocatedHours);
+```
 
 ### Namespaces
 Extension class should have namespace of extended object - e.g. IServiceCollection

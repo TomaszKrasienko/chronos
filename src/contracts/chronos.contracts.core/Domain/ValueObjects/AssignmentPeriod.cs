@@ -14,11 +14,11 @@ public sealed class AssignmentPeriod : ValueObject
     public DateOnly From { get; }
 
     /// <summary>
-    /// Gets the end date of the assignment.
+    /// Gets the end date of the assignment, if defined.
     /// </summary>
-    public DateOnly To { get; }
+    public DateOnly? To { get; }
 
-    private AssignmentPeriod(DateOnly from, DateOnly to)
+    private AssignmentPeriod(DateOnly from, DateOnly? to)
     {
         From = from;
         To = to;
@@ -29,9 +29,13 @@ public sealed class AssignmentPeriod : ValueObject
     /// </summary>
     /// <param name="from">The start date.</param>
     /// <param name="to">The end date.</param>
-    public static AssignmentPeriod Create(DateOnly from, DateOnly to)
+    public static AssignmentPeriod Create(DateOnly from, DateOnly? to)
     {
-        CheckRule(new EndDateCannotBeBeforeStartDateRule(from, to));
+        if (to.HasValue)
+        {
+            CheckRule(new EndDateCannotBeBeforeStartDateRule(from, to.Value));
+        }
+
         return new AssignmentPeriod(from, to);
     }
 

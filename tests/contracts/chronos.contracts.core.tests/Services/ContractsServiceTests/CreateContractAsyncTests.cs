@@ -2,6 +2,7 @@ using chronos.contracts.core.DAL;
 using chronos.contracts.core.Domain;
 using chronos.contracts.core.Services;
 using chronos.shared.kernel.Exceptions;
+using chronos.shared.messaging;
 using NSubstitute;
 using Shouldly;
 
@@ -52,11 +53,13 @@ public sealed class CreateContractAsyncTests
     }
 
     private readonly IContractsRepository _contractsRepository;
+    private readonly IMessagePublisher _messagePublisher;
     private readonly ContractsService _contractsService;
 
     public CreateContractAsyncTests()
     {
         _contractsRepository = Substitute.For<IContractsRepository>();
-        _contractsService = new ContractsService(_contractsRepository);
+        _messagePublisher = Substitute.For<IMessagePublisher>();
+        _contractsService = new ContractsService(_contractsRepository, _messagePublisher);
     }
 }

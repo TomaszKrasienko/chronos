@@ -25,6 +25,11 @@ public sealed class Employee : AggregateRoot<EmployeeId>
     /// </summary>
     public EmployeeId? SupervisorId { get; private set; }
 
+    /// <summary>
+    /// Gets a value indicating whether the employee is deleted.
+    /// </summary>
+    public bool IsDeleted { get; private set; }
+
 #pragma warning disable CS8618
     private Employee()
     {
@@ -38,6 +43,7 @@ public sealed class Employee : AggregateRoot<EmployeeId>
     {
         FullName = fullName;
         Email = email;
+        IsDeleted = false;
     }
 
     /// <summary>
@@ -64,5 +70,13 @@ public sealed class Employee : AggregateRoot<EmployeeId>
     public void RemoveSupervisor()
     {
         SupervisorId = null;
+    }
+
+    /// <summary>
+    /// Marks the employee as deleted (soft delete).
+    /// </summary>
+    public void Delete()
+    {
+        IsDeleted = true;
     }
 }

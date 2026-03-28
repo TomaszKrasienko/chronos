@@ -17,7 +17,7 @@ public sealed record ContractEmployeeResponseDto(
 /// Response DTO representing an assignment period.
 /// </summary>
 /// <param name="From">The assignment start date.</param>
-/// <param name="To">The assignment end date.</param>
+/// <param name="To">The assignment end date, if defined.</param>
 public sealed record AssignmentPeriodResponseDto(
     DateOnly From,
-    DateOnly To);
+    DateOnly? To);

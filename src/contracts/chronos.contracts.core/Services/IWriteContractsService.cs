@@ -32,7 +32,7 @@ public interface IWriteContractsService
         ContractId contractId,
         Ulid employeeId,
         DateOnly from,
-        DateOnly to,
+        DateOnly? to,
         int allocatedHours,
         CancellationToken cancellationToken = default);
 
@@ -69,5 +69,20 @@ public interface IWriteContractsService
     Task CloseContractAsync(
         ContractId contractId,
         DateOnly closingDate,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Updates an employee's assignment period.
+    /// </summary>
+    /// <param name="contractId">The contract identifier.</param>
+    /// <param name="contractEmployeeId">The contract employee identifier.</param>
+    /// <param name="from">The assignment start date.</param>
+    /// <param name="to">The assignment end date.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    Task UpdateEmployeeAssignmentPeriodAsync(
+        ContractId contractId,
+        ContractEmployeeId contractEmployeeId,
+        DateOnly from,
+        DateOnly? to,
         CancellationToken cancellationToken = default);
 }

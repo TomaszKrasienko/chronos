@@ -1,5 +1,8 @@
-using chronos.employees.api;
+using chronos.employees.core.DTOs.Requests;
+using chronos.employees.core.DTOs.Responses;
 using chronos.employees.core.Services;
+
+const string getEmployeeByIdRouteName = "GetEmployeeById";
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -57,6 +60,7 @@ app.MapPost(
     "/api/employees",
     async (
         CreateEmployeeRequestDto request,
+        HttpContext context,
         IEmployeeService employeeService,
         CancellationToken cancellationToken) =>
     {
@@ -67,7 +71,12 @@ app.MapPost(
             request.SupervisorId,
             cancellationToken);
 
-        return Results.Ok(result.Id.ToString());
+        context.AddResourceId(result.Id.Value);
+
+        return Results.CreatedAtRoute(
+            getEmployeeByIdRouteName,
+            new { employeeId = result.Id.Value },
+            null);
     })
     .WithName("CreateEmployee")
     .WithOpenApi();
@@ -115,7 +124,7 @@ app.MapGet(
 
         return Results.Ok(employeeDto);
     })
-    .WithName("RetrieveEmployee")
+    .WithName(getEmployeeByIdRouteName)
     .WithOpenApi();
 
 app.MapGet(
@@ -139,6 +148,19 @@ app.MapGet(
         return Results.Ok(subordinateDtos);
     })
     .WithName("GetSubordinates")
+    .WithOpenApi();
+
+app.MapDelete(
+    "/api/employees/{employeeId}",
+    async (
+        Ulid employeeId,
+        IEmployeeService employeeService,
+        CancellationToken cancellationToken) =>
+    {
+        await employeeService.DeleteAsync(employeeId, cancellationToken);
+        return Results.NoContent();
+    })
+    .WithName("DeleteEmployee")
     .WithOpenApi();
 
 app.MapHealthChecks("/health/live");

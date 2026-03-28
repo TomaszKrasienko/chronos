@@ -77,6 +77,14 @@ internal sealed class CachedEmployeeService(
             supervisorId,
             cancellationToken);
 
+    public async Task DeleteAsync(Ulid employeeId, CancellationToken cancellationToken)
+    {
+        await employeeService.DeleteAsync(employeeId, cancellationToken);
+
+        var cacheKey = GetCacheKey(employeeId);
+        memoryCache.Remove(cacheKey);
+    }
+
     Task IEmployeeCache.CreateAsync(
         Ulid id,
         string firstName,
