@@ -1,5 +1,3 @@
-// RabbitMq configuration is now in DI namespace
-using chronos.employees.core.Communication.Sync.Grpc.Configuration;
 using Microsoft.Extensions.Configuration;
 
 // ReSharper disable once CheckNamespace
@@ -11,6 +9,5 @@ internal static class CommunicationConfigurationExtensions
         this IServiceCollection services,
         IConfiguration configuration)
         => services
-            .AddGrpcCommunication(configuration)
             .AddRabbitMq(configuration);
 }

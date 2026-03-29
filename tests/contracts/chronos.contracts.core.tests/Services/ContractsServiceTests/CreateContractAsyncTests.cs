@@ -49,7 +49,7 @@ public sealed class CreateContractAsyncTests
 
         // Assert
         var exception = await act.ShouldThrowAsync<NotUniqueException>();
-        exception.EntityName.ShouldBe(nameof(Contract));
+        exception.Code.ShouldBe("contract_is_not_unique");
     }
 
     private readonly IContractsRepository _contractsRepository;

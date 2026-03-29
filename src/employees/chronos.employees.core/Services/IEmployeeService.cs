@@ -3,7 +3,7 @@ using chronos.employees.core.Domain;
 using chronos.employees.core.Domain.Identifiers;
 using chronos.employees.core.Domain.ValueObjects;
 using chronos.employees.core.Events;
-using chronos.employees.core.Exceptions;
+using chronos.shared.kernel.Exceptions;
 using chronos.shared.messaging;
 using Microsoft.EntityFrameworkCore;
 
@@ -100,7 +100,7 @@ internal sealed class EmployeeService(
                 => x.FullName.FirstName == firstName
                 && x.FullName.LastName == lastName, cancellationToken))
         {
-            throw new EmployeeAlreadyExistsException(firstName, lastName);
+            throw new NotUniqueException("employee", [firstName, lastName]);
         }
 
         var @event = new EmployeeCreated(
@@ -129,7 +129,7 @@ internal sealed class EmployeeService(
 
         if (employee is null)
         {
-            throw new EmployeeNotFoundException(employeeId);
+            throw new NotFoundException("employee", [employeeId.ToString()]);
         }
 
         var doesSupervisorExist = await dbContext.Employees
@@ -139,7 +139,7 @@ internal sealed class EmployeeService(
 
         if (!doesSupervisorExist)
         {
-            throw new SupervisorEmployeeNotFoundException(supervisorId);
+            throw new NotFoundException("supervisor_employee", [supervisorId.ToString()]);
         }
 
         employee.AssignSupervisor(new EmployeeId(supervisorId));

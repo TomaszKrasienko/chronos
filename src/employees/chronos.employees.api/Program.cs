@@ -34,8 +34,6 @@ if (!app.Environment.IsDevelopment())
     app.UseHttpsRedirection();
 }
 
-app.MapCore();
-
 app.MapGet(
     "/api/employees",
     async (

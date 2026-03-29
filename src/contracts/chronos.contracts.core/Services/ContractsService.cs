@@ -24,7 +24,9 @@ internal sealed class ContractsService(
     {
         if (await contractsRepository.ExistsByCompanyNameAsync(companyName, cancellationToken))
         {
-            throw new NotUniqueException(nameof(Contract), nameof(companyName), companyName);
+            throw new NotUniqueException(
+                nameof(Contract),
+                [companyName]);
         }
 
         var companyDetails = CompanyDetails.Create(companyName);
@@ -129,6 +131,6 @@ internal sealed class ContractsService(
     {
         var contract = await contractsRepository.GetByIdAsync(contractId, cancellationToken);
 
-        return contract ?? throw new NotFoundException(nameof(Contract), contractId.Value);
+        return contract ?? throw new NotFoundException(nameof(Contract), [contractId.Value.ToString()]);
     }
 }

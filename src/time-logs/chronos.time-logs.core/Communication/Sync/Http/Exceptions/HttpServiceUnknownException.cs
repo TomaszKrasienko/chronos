@@ -1,11 +1,11 @@
 using System.Net;
-using chronos.shared.exceptions;
+using chronos.shared.kernel.Exceptions;
 
 namespace chronos.time_logs.core.Communication.Sync.Http.Exceptions;
 
-public sealed class HttpServiceUnknownException(string message)
-    : ChronosException(
-        "http.unknown",
-        message,
-        null,
-        HttpStatusCode.InternalServerError);
+public sealed class HttpServiceUnknownException(
+    string[]? @params = null)
+    : ChronosException("http_unknown", @params)
+{
+    public override HttpStatusCode StatusCode => HttpStatusCode.InternalServerError;
+}

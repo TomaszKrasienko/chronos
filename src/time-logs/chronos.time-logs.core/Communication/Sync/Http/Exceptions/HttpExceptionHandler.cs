@@ -15,27 +15,27 @@ internal static class HttpExceptionHandler
         {
             case HttpStatusCode.NotFound:
                 logger.LogWarning("Resource not found in HTTP service. Status: {StatusCode}", response.StatusCode);
-                throw new HttpServiceNotFoundException(errorCode);
+                throw new HttpServiceNotFoundException([errorCode]);
 
             case HttpStatusCode.BadRequest:
                 logger.LogWarning("Bad request to HTTP service. Status: {StatusCode}", response.StatusCode);
-                throw new HttpServiceBadRequestException(errorCode);
+                throw new HttpServiceBadRequestException([errorCode]);
 
             case HttpStatusCode.RequestTimeout:
                 logger.LogError("Request timeout for HTTP service. Status: {StatusCode}", response.StatusCode);
-                throw new HttpServiceTimeoutException(errorCode);
+                throw new HttpServiceTimeoutException([errorCode]);
 
             case HttpStatusCode.ServiceUnavailable:
                 logger.LogError("HTTP service is unavailable. Status: {StatusCode}", response.StatusCode);
-                throw new HttpServiceUnavailableException(errorCode);
+                throw new HttpServiceUnavailableException([errorCode]);
 
             case HttpStatusCode.InternalServerError:
                 logger.LogError("Internal server error in HTTP service. Status: {StatusCode}", response.StatusCode);
-                throw new HttpServiceInternalServerException(errorCode);
+                throw new HttpServiceInternalServerException([errorCode]);
 
             default:
                 logger.LogError("Unknown error occurred in HTTP service. Status: {StatusCode}", response.StatusCode);
-                throw new HttpServiceUnknownException($"{typeof(TClass).Name}.UnknownError");
+                throw new HttpServiceUnknownException([$"{typeof(TClass).Name}.UnknownError"]);
         }
     }
 }
