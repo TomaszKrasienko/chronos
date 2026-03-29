@@ -1,11 +1,10 @@
 using System.Net;
-using chronos.shared.exceptions;
+using chronos.shared.kernel.Exceptions;
 
 namespace chronos.notifications.core.Exceptions;
 
 public sealed class ContactAlreadyExistsException(Ulid employeeId)
-    : ChronosException(
-        $"contact.already_exists",
-        $"Contact for employee with ID {employeeId} already exists",
-        employeeId.ToString(),
-        HttpStatusCode.Conflict);
+    : ChronosException("contact_already_exists", [employeeId.ToString()])
+{
+    public override HttpStatusCode StatusCode => HttpStatusCode.Conflict;
+}

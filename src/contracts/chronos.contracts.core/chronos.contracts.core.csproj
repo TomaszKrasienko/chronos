@@ -29,4 +29,8 @@
         <ProjectReference Include="..\..\shared\chronos.shared.messaging.rabbit-mq\chronos.shared.messaging.rabbit-mq.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Communication\Sync\Http\Configuration\" />
+    </ItemGroup>
+
 </Project>

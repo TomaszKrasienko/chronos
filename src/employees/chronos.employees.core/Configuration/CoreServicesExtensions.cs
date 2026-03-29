@@ -1,4 +1,3 @@
-using chronos.employees.core.Communication.Configuration;
 using chronos.employees.core.Services;
 using Microsoft.Extensions.Configuration;
 

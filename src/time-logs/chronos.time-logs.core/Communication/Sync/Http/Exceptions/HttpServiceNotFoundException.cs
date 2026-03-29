@@ -1,11 +1,11 @@
 using System.Net;
-using chronos.shared.exceptions;
+using chronos.shared.kernel.Exceptions;
 
 namespace chronos.time_logs.core.Communication.Sync.Http.Exceptions;
 
-public sealed class HttpServiceNotFoundException(string message)
-    : ChronosException(
-        "http.not_found",
-        message,
-        null,
-        HttpStatusCode.NotFound);
+public sealed class HttpServiceNotFoundException(
+    string[]? @params = null)
+    : ChronosException("http_not_found", @params)
+{
+    public override HttpStatusCode StatusCode => HttpStatusCode.NotFound;
+}

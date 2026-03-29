@@ -1,15 +1,13 @@
+using System.Net;
+
 namespace chronos.shared.kernel.Exceptions;
 
 /// <summary>
 /// Exception thrown when a uniqueness constraint is violated.
 /// </summary>
-public sealed class NotUniqueException(string entityName, string paramName, object paramValue) : ChronosException
+public sealed class NotUniqueException(
+    string entityName,
+    string[]? @params = null) : ChronosException($"{entityName}_is_not_unique", @params)
 {
-    private const string ErrorCode = "not_unique";
-
-    public override string Code => ErrorCode;
-
-    public string EntityName { get; } = entityName;
-    public string ParamName { get; } = paramName;
-    public object ParamValue { get; } = paramValue;
+    public override HttpStatusCode StatusCode { get; } = HttpStatusCode.BadRequest;
 }

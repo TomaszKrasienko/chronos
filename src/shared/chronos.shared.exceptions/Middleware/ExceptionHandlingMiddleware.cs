@@ -1,5 +1,6 @@
 using System.Net;
 using System.Text.Json;
+using chronos.shared.kernel.Exceptions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -32,7 +33,9 @@ public sealed class ExceptionHandlingMiddleware(
         }
     }
 
-    private Task HandleChronosExceptionAsync(HttpContext context, ChronosException exception)
+    private Task HandleChronosExceptionAsync(
+        HttpContext context,
+        ChronosException exception)
     {
         logger.LogWarning(exception,
             "Chronos exception occurred: {Code} - {Message}",
@@ -41,21 +44,18 @@ public sealed class ExceptionHandlingMiddleware(
 
         var problemDetails = new ProblemDetails
         {
-            Title = "An error occurred",
+            Title = exception.Code,
             Status = (int)exception.StatusCode,
-            Detail = exception.Message,
+            Detail = string.Join(",", exception.Params),
             Instance = context.Request.Path,
             Type = $"https://httpstatuses.com/{(int)exception.StatusCode}",
             Extensions =
             {
-                ["code"] = exception.Code,
-                ["identifier"] = exception.Identifier,
                 ["traceId"] = context.TraceIdentifier
             }
         };
 
         context.Response.StatusCode = (int)exception.StatusCode;
-        context.Response.ContentType = "application/problem+json";
 
         return context.Response.WriteAsync(
             JsonSerializer.Serialize(problemDetails, JsonOptions));
@@ -76,13 +76,11 @@ public sealed class ExceptionHandlingMiddleware(
             Type = $"https://httpstatuses.com/{(int)HttpStatusCode.InternalServerError}",
             Extensions =
             {
-                ["code"] = "internal_server_error",
                 ["traceId"] = context.TraceIdentifier
             }
         };
 
         context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-        context.Response.ContentType = "application/problem+json";
 
         return context.Response.WriteAsync(
             JsonSerializer.Serialize(problemDetails, JsonOptions));

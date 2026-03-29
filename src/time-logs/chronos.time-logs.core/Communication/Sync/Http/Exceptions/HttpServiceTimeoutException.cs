@@ -1,11 +1,11 @@
 using System.Net;
-using chronos.shared.exceptions;
+using chronos.shared.kernel.Exceptions;
 
 namespace chronos.time_logs.core.Communication.Sync.Http.Exceptions;
 
-public sealed class HttpServiceTimeoutException(string message)
-    : ChronosException(
-        "http.timeout",
-        message,
-        null,
-        HttpStatusCode.RequestTimeout);
+public sealed class HttpServiceTimeoutException(
+    string[]? @params = null)
+    : ChronosException("http_timeout", @params)
+{
+    public override HttpStatusCode StatusCode => HttpStatusCode.RequestTimeout;
+}
