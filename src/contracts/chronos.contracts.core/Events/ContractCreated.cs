@@ -1,3 +1,5 @@
+using chronos.shared.messaging;
+
 namespace chronos.contracts.core.Events;
 
 /// <summary>
@@ -11,4 +13,4 @@ public sealed record ContractCreated(
     Ulid ContractId,
     string CompanyName,
     DateOnly AssignmentDate,
-    DateOnly? ClosingDate);
+    DateOnly? ClosingDate) : IMessage;

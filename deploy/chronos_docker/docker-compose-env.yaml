@@ -24,10 +24,27 @@ services:
       - 10012:5672
       - 10013:15672
 
+  chronos-postgres:
+    image: postgres:17
+    container_name: chronos_env_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: chronos
+      POSTGRES_PASSWORD: chronos
+      POSTGRES_DB: chronos
+    volumes:
+      - chronos-postgres:/var/lib/postgresql/data
+    ports:
+      - 10014:5432
+    networks:
+      - chronos-network
+
 volumes:
   chronos-mongo:
     driver: local
   chronos-rabbitmq:
+    driver: local
+  chronos-postgres:
     driver: local
 
 networks:

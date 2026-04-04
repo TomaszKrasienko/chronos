@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.11" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.11" />
+      <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.11" />
+      <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.11" />
+      <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
+      <PackageReference Include="Ulid" Version="1.4.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\chronos.shared.configuration\chronos.shared.configuration.csproj" />
+      <ProjectReference Include="..\chronos.shared.messaging\chronos.shared.messaging.csproj" />
+    </ItemGroup>
+
+</Project>

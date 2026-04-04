@@ -1,5 +1,6 @@
 using chronos.contracts.core.DTOs.Responses;
 using chronos.contracts.core.Events;
+using chronos.contracts.core.Events.External;
 using chronos.contracts.core.Services;
 using chronos.shared.configuration.Options;
 using chronos.shared.messaging.rabbit_mq.Configuration;
@@ -30,6 +31,16 @@ internal static class CommunicationRabbitMqServicesExtensions
                     new ContractPeriodResponseDto(msg.AssignmentDate, msg.ClosingDate),
                     []);
                 await cacheService.CreateAsync(contract, ct);
+            };
+        });
+
+        services.AddConsumer<EmployeeDeleted>(sp =>
+        {
+            return async (msg, ct, _) =>
+            {
+                using var scope = sp.CreateScope();
+                var handler = scope.ServiceProvider.GetRequiredService<IEmployeeDeletedEventHandler>();
+                await handler.Handle(msg, ct);
             };
         });
 

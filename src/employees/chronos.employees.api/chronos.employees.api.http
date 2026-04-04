@@ -6,7 +6,7 @@ POST {{host_address}}/api/employees
 Content-Type: application/json
 
 {
-  "firstName": "Joe",
+  "firstName": "Je",
   "lastName": "Doe",
   "email": "j.doe@gmail.com",
   "supervisorId": null
@@ -40,11 +40,12 @@ Content-Type: application/json
 {
   "firstName": "Jane",
   "lastName": "Smith",
+  "email": "j.smith@gmail.com",
   "supervisorId": null
 }
 
 ###
-@employee_without_supervisor_id = {{create_employee_without_supervisor.response.body.$}}
+@employee_without_supervisor_id = {{create_employee_without_supervisor.response.headers.X-Resource-Id}}
 
 
 ### Assign Supervisor to Employee

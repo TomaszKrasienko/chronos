@@ -1,3 +1,5 @@
+using chronos.shared.messaging;
+
 namespace chronos.employees.core.Events;
 
 public sealed record EmployeeCreated(
@@ -5,4 +7,4 @@ public sealed record EmployeeCreated(
     string FirstName,
     string LastName,
     string Email,
-    Ulid? SupervisorId);
+    Ulid? SupervisorId) : IMessage;

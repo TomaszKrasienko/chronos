@@ -11,6 +11,7 @@ public static class CoreServicesExtensions
             IConfiguration configuration)
     {
         services
+            .AddSingleton(TimeProvider.System)
             .AddDal(configuration)
             .AddCommunication(configuration)
             .AddMemoryCache()

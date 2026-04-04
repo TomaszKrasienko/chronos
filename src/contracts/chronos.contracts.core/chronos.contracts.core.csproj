@@ -30,7 +30,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Communication\Sync\Http\Configuration\" />
+        <PackageReference Include="Refit.HttpClientFactory" Version="8.0.0" />
     </ItemGroup>
 
 </Project>

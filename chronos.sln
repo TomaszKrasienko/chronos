@@ -71,6 +71,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "chronos.time-logs.core", "s
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "chronos.time-logs.api", "src\time-logs\chronos.time-logs.api\chronos.time-logs.api.csproj", "{609AA761-E4FE-4688-9803-EE4B9ED978D0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "chronos.shared.messaging.outbox", "src\shared\chronos.shared.messaging.outbox\chronos.shared.messaging.outbox.csproj", "{DEA38E8E-74AA-4984-B1E1-8353F94FC18F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -309,6 +311,18 @@ Global
 		{609AA761-E4FE-4688-9803-EE4B9ED978D0}.Release|x64.Build.0 = Release|Any CPU
 		{609AA761-E4FE-4688-9803-EE4B9ED978D0}.Release|x86.ActiveCfg = Release|Any CPU
 		{609AA761-E4FE-4688-9803-EE4B9ED978D0}.Release|x86.Build.0 = Release|Any CPU
+		{DEA38E8E-74AA-4984-B1E1-8353F94FC18F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DEA38E8E-74AA-4984-B1E1-8353F94FC18F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DEA38E8E-74AA-4984-B1E1-8353F94FC18F}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{DEA38E8E-74AA-4984-B1E1-8353F94FC18F}.Debug|x64.Build.0 = Debug|Any CPU
+		{DEA38E8E-74AA-4984-B1E1-8353F94FC18F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{DEA38E8E-74AA-4984-B1E1-8353F94FC18F}.Debug|x86.Build.0 = Debug|Any CPU
+		{DEA38E8E-74AA-4984-B1E1-8353F94FC18F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DEA38E8E-74AA-4984-B1E1-8353F94FC18F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DEA38E8E-74AA-4984-B1E1-8353F94FC18F}.Release|x64.ActiveCfg = Release|Any CPU
+		{DEA38E8E-74AA-4984-B1E1-8353F94FC18F}.Release|x64.Build.0 = Release|Any CPU
+		{DEA38E8E-74AA-4984-B1E1-8353F94FC18F}.Release|x86.ActiveCfg = Release|Any CPU
+		{DEA38E8E-74AA-4984-B1E1-8353F94FC18F}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -343,5 +357,6 @@ Global
 		{CFAA4F3F-0A86-0C36-EEB9-8277AD51D8E0} = {2BE25C38-CAE0-4495-810B-5BB14024C824}
 		{BE7D3AF4-8816-4D35-B756-A25A62DC5E66} = {CFAA4F3F-0A86-0C36-EEB9-8277AD51D8E0}
 		{609AA761-E4FE-4688-9803-EE4B9ED978D0} = {CFAA4F3F-0A86-0C36-EEB9-8277AD51D8E0}
+		{DEA38E8E-74AA-4984-B1E1-8353F94FC18F} = {7A467E41-8532-408F-923E-432F470C44EB}
 	EndGlobalSection
 EndGlobal

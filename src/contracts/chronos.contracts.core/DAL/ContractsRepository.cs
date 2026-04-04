@@ -26,4 +26,11 @@ internal sealed class ContractsRepository(ContractsDbContext dbContext) : IContr
         dbContext.Contracts.Update(contract);
         await dbContext.SaveChangesAsync(cancellationToken);
     }
+
+    public async Task<IReadOnlyList<Contract>> GetByEmployeeIdAsync(
+        Ulid employeeId,
+        CancellationToken cancellationToken = default)
+        => await dbContext.Contracts
+            .Where(c => c.Employees.Any(e => e.EmployeeId == employeeId))
+            .ToListAsync(cancellationToken);
 }

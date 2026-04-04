@@ -1,4 +1,5 @@
 using chronos.shared.kernel.Identifiers;
+using chronos.shared.messaging;
 
 namespace chronos.time_logs.core.Events;
 
@@ -21,4 +22,4 @@ public sealed record TimeLogRejected(
     string Topic,
     string? Notes,
     EmployeeId RejectedBy,
-    string Reason);
+    string Reason) : IMessage;

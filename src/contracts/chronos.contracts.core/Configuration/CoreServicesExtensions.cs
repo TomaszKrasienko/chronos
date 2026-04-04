@@ -1,3 +1,4 @@
+using chronos.contracts.core.Events.External;
 using chronos.contracts.core.Services;
 using Microsoft.Extensions.Configuration;
 
@@ -17,7 +18,8 @@ public static class CoreServicesExtensions
             .AddScoped<IWriteContractsService, ContractsService>()
             .AddScoped<IReadContractsService, ContractsService>()
             .Decorate<IReadContractsService, CachedContractsService>()
-            .AddScoped<IContractsCache, CachedContractsService>();
+            .AddScoped<IContractsCache, CachedContractsService>()
+            .AddScoped<IEmployeeDeletedEventHandler, EmployeeDeletedEventHandler>();
 
         return services;
     }

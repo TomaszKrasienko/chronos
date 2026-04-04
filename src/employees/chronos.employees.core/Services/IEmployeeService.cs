@@ -78,7 +78,7 @@ public interface IEmployeeService
 
 internal sealed class EmployeeService(
     EmployeesDbContext dbContext,
-    IMessagePublisher messagePublisher) : IEmployeeService
+    IMessageDispatcher messageDispatcher) : IEmployeeService
 {
     public async Task<Employee> CreateAsync(
         string firstName,
@@ -111,7 +111,7 @@ internal sealed class EmployeeService(
             employee.SupervisorId?.Value);
 
         await dbContext.Employees.AddAsync(employee, cancellationToken);
-        await messagePublisher.Send(@event, cancellationToken);
+        await messageDispatcher.Send(@event, cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
 
         return employee;
@@ -148,7 +148,7 @@ internal sealed class EmployeeService(
             employeeId,
             supervisorId);
 
-        await messagePublisher.Send(@event, cancellationToken);
+        await messageDispatcher.Send(@event, cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
     }
 
@@ -196,7 +196,7 @@ internal sealed class EmployeeService(
 
         var @event = new EmployeeDeleted(employeeId);
 
-        await messagePublisher.Send(@event, cancellationToken);
+        await messageDispatcher.Send(@event, cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
     }
 }
