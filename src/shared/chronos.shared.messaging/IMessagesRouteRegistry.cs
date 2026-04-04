@@ -1,4 +1,4 @@
-namespace chronos.shared.messaging.rabbit_mq.Consumers;
+namespace chronos.shared.messaging;
 
 public interface IMessagesRouteRegistry
 {

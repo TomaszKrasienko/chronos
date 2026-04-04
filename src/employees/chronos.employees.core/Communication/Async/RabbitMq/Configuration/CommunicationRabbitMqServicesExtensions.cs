@@ -34,6 +34,8 @@ internal static class CommunicationRabbitMqServicesExtensions
                     ct);
             };
         });
+
+        services.AddOutbox(configuration);
         
         return services;
     }

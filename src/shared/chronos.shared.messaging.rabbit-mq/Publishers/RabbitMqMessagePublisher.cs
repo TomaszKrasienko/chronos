@@ -2,17 +2,21 @@ using System.Text;
 using System.Text.Json;
 using chronos.shared.messaging.rabbit_mq.Connections;
 using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
 
 namespace chronos.shared.messaging.rabbit_mq.Publishers;
 
 internal sealed class RabbitMqMessagePublisher(
-    RabbitMqChannelFactory channelFactory,
-    ISendingNameConvention sendingNameConvention) : IMessagePublisher
+    RabbitMqChannelFactory channelFactory) : IMessagePublisher
 {
     public async Task Send<T>(
         T message,
+        string exchange,
+        string routingKey,
+        AsyncEventHandler<BasicReturnEventArgs>? basicReturn,
         CancellationToken? cancellationToken = null) where T : class
     {
+        
         var channel = channelFactory.ProducerChannel;
         var payload = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(message));
 
@@ -21,8 +25,11 @@ internal sealed class RabbitMqMessagePublisher(
             Type = typeof(T).FullName,
         };
 
-        var (exchange, routingKey) = sendingNameConvention
-            .GetExchangeAndRoutingKey(message);
+
+        if (basicReturn != null)
+        {
+            channel.BasicReturnAsync += basicReturn;
+        }
 
         await channel.ExchangeDeclareAsync(
             exchange: exchange,

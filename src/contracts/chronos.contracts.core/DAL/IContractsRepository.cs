@@ -44,4 +44,12 @@ public interface IContractsRepository
     /// <param name="contract">The contract to update.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     Task UpdateAsync(Contract contract, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets all contracts that have the specified employee assigned.
+    /// </summary>
+    /// <param name="employeeId">The employee identifier.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>List of contracts with the employee assigned.</returns>
+    Task<IReadOnlyList<Contract>> GetByEmployeeIdAsync(Ulid employeeId, CancellationToken cancellationToken = default);
 }

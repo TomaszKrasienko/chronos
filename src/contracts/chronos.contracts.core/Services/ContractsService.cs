@@ -1,3 +1,4 @@
+using chronos.contracts.core.Communication.Sync.Http;
 using chronos.contracts.core.DAL;
 using chronos.contracts.core.Domain;
 using chronos.contracts.core.Domain.Events;
@@ -14,7 +15,8 @@ namespace chronos.contracts.core.Services;
 /// </summary>
 internal sealed class ContractsService(
     IContractsRepository contractsRepository,
-    IMessagePublisher messagePublisher)
+    IMessageDispatcher messageDispatcher,
+    IEmployeesClient employeesClient)
     : IWriteContractsService, IReadContractsService
 {
     public async Task<ContractId> CreateContractAsync(
@@ -36,7 +38,7 @@ internal sealed class ContractsService(
         await contractsRepository.AddAsync(contract, cancellationToken);
 
         var domainEvent = contract.DomainEvents.OfType<ContractCreatedEvent>().Single();
-        await messagePublisher.Send(domainEvent.ToIntegrationEvent(), cancellationToken);
+        await messageDispatcher.Send(domainEvent.ToIntegrationEvent(), cancellationToken);
         contract.ClearDomainEvents();
 
         return contract.Id;
@@ -50,6 +52,11 @@ internal sealed class ContractsService(
         int allocatedHours,
         CancellationToken cancellationToken = default)
     {
+        if (!await employeesClient.DoesEmployeeExistAsync(employeeId, cancellationToken))
+        {
+            throw new NotFoundException("Employee", [employeeId.ToString()]);
+        }
+
         var contract = await GetContractAsync(contractId, cancellationToken);
         var assignmentPeriod = AssignmentPeriod.Create(from, to);
 

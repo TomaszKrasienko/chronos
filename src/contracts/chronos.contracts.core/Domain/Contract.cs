@@ -113,6 +113,26 @@ public sealed class Contract : AggregateRoot<ContractId>
     }
 
     /// <summary>
+    /// Removes an employee assignment by employee ID. Operation is idempotent.
+    /// </summary>
+    /// <param name="employeeId">The employee identifier from Employee bounded context.</param>
+    public void RemoveEmployeeByEmployeeId(Ulid employeeId)
+    {
+        var employee = _employees.SingleOrDefault(e => e.EmployeeId == employeeId);
+        
+        if (employee is null)
+        {
+            return;
+        }
+        
+        _employees.Remove(employee);
+        AddDomainEvent(new EmployeeRemovedEvent(
+            Id,
+            employee.Id,
+            employeeId));
+    }
+
+    /// <summary>
     /// Updates the allocated hours for an employee assignment.
     /// </summary>
     /// <param name="contractEmployeeId">The contract employee identifier.</param>

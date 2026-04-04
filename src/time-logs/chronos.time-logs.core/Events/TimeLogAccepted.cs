@@ -1,4 +1,5 @@
 using chronos.shared.kernel.Identifiers;
+using chronos.shared.messaging;
 
 namespace chronos.time_logs.core.Events;
 
@@ -19,4 +20,4 @@ public sealed record TimeLogAccepted(
     TimeSpan Hours,
     string Topic,
     string? Notes,
-    EmployeeId AcceptedBy);
+    EmployeeId AcceptedBy) : IMessage;

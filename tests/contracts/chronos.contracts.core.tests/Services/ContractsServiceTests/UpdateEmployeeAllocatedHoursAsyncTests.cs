@@ -1,3 +1,4 @@
+using chronos.contracts.core.Communication.Sync.Http;
 using chronos.contracts.core.DAL;
 using chronos.contracts.core.Domain.Identifiers;
 using chronos.contracts.core.Services;
@@ -50,12 +51,17 @@ public sealed class UpdateEmployeeAllocatedHoursAsyncTests
 
     private readonly IContractsRepository _contractsRepository;
     private readonly IMessagePublisher _messagePublisher;
+    private readonly IEmployeesClient _employeesClient;
     private readonly ContractsService _contractsService;
 
     public UpdateEmployeeAllocatedHoursAsyncTests()
     {
         _contractsRepository = Substitute.For<IContractsRepository>();
         _messagePublisher = Substitute.For<IMessagePublisher>();
-        _contractsService = new ContractsService(_contractsRepository, _messagePublisher);
+        _employeesClient = Substitute.For<IEmployeesClient>();
+        _contractsService = new ContractsService(
+            _contractsRepository,
+            _messagePublisher,
+            _employeesClient);
     }
 }

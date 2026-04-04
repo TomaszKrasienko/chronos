@@ -22,7 +22,8 @@ public static class RabbitMqServicesExtensions
             .AddSingleton<ISendingNameConvention, SendingNameConvention>()
             .AddSingleton<IMessagesRouteRegistry, MessagesRouteRegistry>()
             .AddSingleton<IConsumingNameConvention, ConsumingNameConvention>()
-            .AddTransient<IMessagePublisher, RabbitMqMessagePublisher>();
+            .AddTransient<IMessagePublisher, RabbitMqMessagePublisher>()
+            .AddTransient<IMessageDispatcher, RabbitMqMessageDispatcher>();
     
     public static IServiceCollection AddConsumer<TMessage>(
         this IServiceCollection services,

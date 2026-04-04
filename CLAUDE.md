@@ -116,6 +116,7 @@ Main entry point is `AddCore()` which chains: `AddDal()`, `AddCommunication()`, 
 
 ## Code Conventions
 
+- Prefer Chronos exceptions (inheriting from `ChronosException`) over standard .NET exceptions - they are properly handled by exception middleware and return appropriate HTTP status codes
 - Async methods must have `Async` suffix
 - Async event handlers must include `CancellationToken cancellationToken = default` as last parameter
 - Domain models use OOP with business logic encapsulated
