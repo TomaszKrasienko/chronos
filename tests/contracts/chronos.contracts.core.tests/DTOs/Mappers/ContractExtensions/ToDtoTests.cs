@@ -1,5 +1,6 @@
 using chronos.contracts.core.Domain;
 using chronos.contracts.core.Domain.ValueObjects;
+using chronos.shared.kernel.Identifiers;
 using chronos.tests.shared.Factories;
 using Shouldly;
 
@@ -35,7 +36,7 @@ public sealed class ToDtoTests
     public void GivenContractWithEmployee_WhenMappingToDto_ThenEmployeeFieldsAreMapped()
     {
         // Arrange
-        var employeeId = Ulid.NewUlid();
+        var employeeId = EmployeeId.New();
         var assignmentPeriod = AssignmentPeriod.Create(
             new DateOnly(2024, 1, 1),
             new DateOnly(2024, 12, 31));
@@ -51,8 +52,7 @@ public sealed class ToDtoTests
         // Assert
         result.Employees.Count.ShouldBe(1);
         var employeeDto = result.Employees[0];
-        employeeDto.Id.ShouldBe(contract.Employees[0].Id.Value.ToString());
-        employeeDto.EmployeeId.ShouldBe(employeeId.ToString());
+        employeeDto.EmployeeId.ShouldBe(employeeId.Value.ToString());
         employeeDto.AssignmentPeriod.From.ShouldBe(new DateOnly(2024, 1, 1));
         employeeDto.AssignmentPeriod.To.ShouldBe(new DateOnly(2024, 12, 31));
         employeeDto.AllocatedHours.ShouldBe(allocatedHours);

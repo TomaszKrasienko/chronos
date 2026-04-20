@@ -55,24 +55,23 @@ public sealed class OutboxProcessor(
                 {
                     try
                     {
-                        var content = message.Content;
-
-                        if (content is null)
+                        if (message.Content is not IMessage content)
                         {
                             message.MarkError("Invalid message type");
                             continue;
                         }
 
-                        Task BasicReturn(object sender, BasicReturnEventArgs @event)
+                        async Task BasicReturn(object sender, BasicReturnEventArgs @event)
                         {
                             message.MarkError(@event.ReplyCode.ToString());
-                            return Task.CompletedTask;
+                            await dbContext.SaveChangesAsync(stoppingToken);
                         }
 
                         await messageProcessor.Send(
                             content,
                             message.Exchange,
                             message.RoutingKey ?? string.Empty,
+                            message.MessageId.ToString(),
                             BasicReturn,
                             stoppingToken);
                         

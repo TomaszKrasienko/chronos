@@ -1,5 +1,5 @@
-using chronos.employees.core.Domain.Identifiers;
 using chronos.shared.kernel.Exceptions;
+using chronos.shared.kernel.Identifiers;
 using chronos.tests.shared.Factories;
 using Shouldly;
 

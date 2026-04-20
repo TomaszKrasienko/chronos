@@ -1,4 +1,4 @@
-using chronos.contracts.core.Domain.Identifiers;
+using chronos.shared.kernel.Identifiers;
 using chronos.tests.shared.Factories;
 using Shouldly;
 

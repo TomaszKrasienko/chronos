@@ -1,7 +1,7 @@
-using chronos.employees.core.Domain.Identifiers;
 using chronos.employees.core.Domain.Rules;
 using chronos.employees.core.Domain.ValueObjects;
 using chronos.shared.kernel;
+using chronos.shared.kernel.Identifiers;
 
 namespace chronos.employees.core.Domain;
 

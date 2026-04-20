@@ -80,6 +80,25 @@ public static IServiceCollection Add{FeatureName}(this IServiceCollection servic
 ```
 Main entry point is `AddCore()` which chains: `AddDal()`, `AddCommunication()`, etc.
 
+### Application Services
+- Split interfaces into `IRead{Name}Service` and `IWrite{Name}Service` for query/command separation
+- Single implementation class `{Name}Service` implements both interfaces
+- Registration in DI:
+```csharp
+.AddScoped<IReadContractsService, ContractsService>()
+.AddScoped<IWriteContractsService, ContractsService>();
+```
+- Use generic exceptions from `chronos.shared.kernel/Exceptions/`: `NotFoundException`, `NotUniqueException`, etc.
+- `DomainException` is only for domain layer (entities, value objects) - never use in services
+- If no matching exception exists, create a new one following the pattern:
+```csharp
+public sealed class EmployeeHasNoSupervisorException(
+    string[]? @params = null) : ChronosException("employee_has_no_supervisor", @params)
+{
+    public override HttpStatusCode StatusCode { get; } = HttpStatusCode.BadRequest;
+}
+```
+
 ### Shared Libraries
 - `chronos.shared.kernel` - DDD building blocks (IEntityId, Entity, AggregateRoot, ValueObject, IBusinessRule, IDomainEvent, DomainException) and strongly-typed identifiers in `Identifiers/` folder
 - `chronos.shared.configuration` - Configuration utilities
@@ -106,6 +125,65 @@ Main entry point is `AddCore()` which chains: `AddDal()`, `AddCommunication()`, 
 - Domain events are NOT persisted to database - they are dispatched after successful save operation
 - Use `ClearDomainEvents()` after publishing events
 
+## Documentation
+
+### Event Communication Diagrams
+- After adding or modifying integration events, generate Mermaid diagrams using the `mermaid-docs` sub-agent
+- Agent definition: `.claude/agents/mermaid-docs.md`
+- Output location: `docs/events/{EventName}.md`
+- Each diagram shows: Source Service → Exchange → Routing Key → Queue → Target Service
+- Run with prompt: "Generate event documentation diagrams" or "Update diagram for {EventName}"
+
+### XML Summary Documentation
+Use the `xml-docs` sub-agent to add missing XML documentation. Agent definition: `.claude/agents/xml-docs.md`
+
+#### Convention by Type
+| Type | Documentation Style |
+|------|---------------------|
+| Interfaces | Full documentation: `<summary>`, `<param>`, `<returns>` |
+| Implementations | `/// <inheritdoc />` for interface methods, `<summary>` for class |
+| Abstract/Base classes | Full documentation with `<typeparam>` |
+| Aggregates/Entities | `<summary>` for class and public methods |
+| Value Objects | `<summary>` for class and factory methods |
+| Business Rules | `<summary>` describing what the rule validates |
+| DTOs (records) | `<summary>` for record, `<param>` for each property |
+| Events | `<summary>` describing when event is raised |
+
+#### Writing Style
+- Be concise - one sentence for simple members
+- Start with verb: "Creates...", "Gets...", "Validates..."
+- Use "The" for parameters: "The contract identifier"
+- Reference types with `<see cref="TypeName"/>`
+- CancellationToken: always "The cancellation token."
+
+#### Example
+```csharp
+// Interface - full documentation
+/// <summary>
+/// Service for writing contract data.
+/// </summary>
+public interface IWriteContractsService
+{
+    /// <summary>
+    /// Creates a new contract with company details.
+    /// </summary>
+    /// <param name="companyName">The name of the company.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The created contract identifier.</returns>
+    Task<ContractId> CreateContractAsync(string companyName, CancellationToken cancellationToken = default);
+}
+
+// Implementation - inheritdoc
+/// <summary>
+/// Service for managing contracts.
+/// </summary>
+internal sealed class ContractsService : IWriteContractsService
+{
+    /// <inheritdoc />
+    public async Task<ContractId> CreateContractAsync(...) { }
+}
+```
+
 ## Technologies
 
 - .NET 9, MongoDB with EF Core, RabbitMQ
@@ -117,6 +195,7 @@ Main entry point is `AddCore()` which chains: `AddDal()`, `AddCommunication()`, 
 ## Code Conventions
 
 - Prefer Chronos exceptions (inheriting from `ChronosException`) over standard .NET exceptions - they are properly handled by exception middleware and return appropriate HTTP status codes
+- Use collection expressions `[]` for new collections: `List<Contract> contracts = [contract1, contract2]` instead of `new List<Contract> { ... }`
 - Async methods must have `Async` suffix
 - Async event handlers must include `CancellationToken cancellationToken = default` as last parameter
 - Domain models use OOP with business logic encapsulated
@@ -172,6 +251,7 @@ tests/
 - Use NSubstitute for mocking dependencies
 - Place in `Services/{ServiceName}Tests/` folder with one file per method
 - Structure: `{MethodName}Tests.cs` (e.g., `CreateContractAsyncTests.cs`)
+- Add `<InternalsVisibleTo Include="DynamicProxyGenAssembly2" />` to core project for mocking internal types (no public key needed)
 
 ### Test Libraries
 - xUnit as test framework

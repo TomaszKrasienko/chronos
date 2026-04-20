@@ -1,8 +1,8 @@
 using chronos.contracts.core.Domain.Events;
-using chronos.contracts.core.Domain.Identifiers;
 using chronos.contracts.core.Domain.Rules;
 using chronos.contracts.core.Domain.ValueObjects;
 using chronos.shared.kernel;
+using chronos.shared.kernel.Identifiers;
 
 namespace chronos.contracts.core.Domain;
 
@@ -73,7 +73,7 @@ public sealed class Contract : AggregateRoot<ContractId>
     /// <param name="assignmentPeriod">The period of assignment.</param>
     /// <param name="allocatedHours">The number of hours allocated.</param>
     public void AssignEmployee(
-        Ulid employeeId,
+        EmployeeId employeeId,
         AssignmentPeriod assignmentPeriod,
         int allocatedHours)
     {
@@ -87,7 +87,6 @@ public sealed class Contract : AggregateRoot<ContractId>
 
         AddDomainEvent(new EmployeeAssignedEvent(
             Id,
-            employee.Id,
             employeeId,
             assignmentPeriod.From,
             assignmentPeriod.To,
@@ -97,28 +96,10 @@ public sealed class Contract : AggregateRoot<ContractId>
     /// <summary>
     /// Removes an employee assignment from this contract. Operation is idempotent.
     /// </summary>
-    /// <param name="contractEmployeeId">The contract employee identifier.</param>
-    public void RemoveEmployee(ContractEmployeeId contractEmployeeId)
+    /// <param name="employeeId">The employee identifier.</param>
+    public void RemoveEmployee(EmployeeId employeeId)
     {
-        var employee = _employees.SingleOrDefault(e => e.Id == contractEmployeeId);
-        if (employee is not null)
-        {
-            _employees.Remove(employee);
-
-            AddDomainEvent(new EmployeeRemovedEvent(
-                Id,
-                contractEmployeeId,
-                employee.EmployeeId));
-        }
-    }
-
-    /// <summary>
-    /// Removes an employee assignment by employee ID. Operation is idempotent.
-    /// </summary>
-    /// <param name="employeeId">The employee identifier from Employee bounded context.</param>
-    public void RemoveEmployeeByEmployeeId(Ulid employeeId)
-    {
-        var employee = _employees.SingleOrDefault(e => e.EmployeeId == employeeId);
+        var employee = _employees.SingleOrDefault(e => e.Id == employeeId);
         
         if (employee is null)
         {
@@ -128,26 +109,24 @@ public sealed class Contract : AggregateRoot<ContractId>
         _employees.Remove(employee);
         AddDomainEvent(new EmployeeRemovedEvent(
             Id,
-            employee.Id,
-            employeeId));
+            employee.Id));
     }
 
     /// <summary>
     /// Updates the allocated hours for an employee assignment.
     /// </summary>
-    /// <param name="contractEmployeeId">The contract employee identifier.</param>
+    /// <param name="employeeId">The employee identifier.</param>
     /// <param name="allocatedHours">The new number of allocated hours.</param>
-    public void UpdateEmployeeAllocatedHours(ContractEmployeeId contractEmployeeId, int allocatedHours)
+    public void UpdateEmployeeAllocatedHours(EmployeeId employeeId, int allocatedHours)
     {
-        CheckRule(new EmployeeAssignmentMustExistRule(_employees, contractEmployeeId));
+        CheckRule(new EmployeeAssignmentMustExistRule(_employees, employeeId));
 
-        var employee = _employees.Single(e => e.Id == contractEmployeeId);
+        var employee = _employees.Single(e => e.Id == employeeId);
         employee.UpdateAllocatedHours(allocatedHours);
 
         AddDomainEvent(new EmployeeHoursUpdatedEvent(
             Id,
-            contractEmployeeId,
-            employee.EmployeeId,
+            employee.Id,
             allocatedHours));
     }
 
@@ -165,21 +144,19 @@ public sealed class Contract : AggregateRoot<ContractId>
     /// <summary>
     /// Updates the assignment period for an employee.
     /// </summary>
-    /// <param name="contractEmployeeId">The contract employee identifier.</param>
+    /// <param name="employeeId">The employee identifier.</param>
     /// <param name="assignmentPeriod">The new assignment period.</param>
     public void UpdateEmployeeAssignmentPeriod(
-        ContractEmployeeId contractEmployeeId,
+        EmployeeId employeeId,
         AssignmentPeriod assignmentPeriod)
     {
-        CheckRule(new EmployeeAssignmentMustExistRule(_employees, contractEmployeeId));
+        CheckRule(new EmployeeAssignmentMustExistRule(_employees, employeeId));
 
-        var employee = _employees.Single(e => e.Id == contractEmployeeId);
+        var employee = _employees.Single(e => e.Id == employeeId);
         employee.UpdateAssignmentPeriod(assignmentPeriod);
-
         AddDomainEvent(new EmployeeAssignmentPeriodUpdatedEvent(
             Id,
-            contractEmployeeId,
-            employee.EmployeeId,
+            employee.Id,
             assignmentPeriod.From,
             assignmentPeriod.To));
     }

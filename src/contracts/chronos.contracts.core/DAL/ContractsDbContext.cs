@@ -1,5 +1,5 @@
 using chronos.contracts.core.Domain;
-using chronos.contracts.core.Domain.Identifiers;
+using chronos.shared.kernel.Identifiers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MongoDB.EntityFrameworkCore.Extensions;
@@ -16,14 +16,10 @@ internal sealed class ContractsDbContext(
         var contractIdConverter = new ValueConverter<ContractId, string>(
             v => v.Value.ToString(),
             v => new ContractId(Ulid.Parse(v)));
-
-        var contractEmployeeIdConverter = new ValueConverter<ContractEmployeeId, string>(
+        
+        var employeeIdConverter = new ValueConverter<EmployeeId, string>(
             v => v.Value.ToString(),
-            v => new ContractEmployeeId(Ulid.Parse(v)));
-
-        var ulidConverter = new ValueConverter<Ulid, string>(
-            v => v.ToString(),
-            v => Ulid.Parse(v));
+            v => new EmployeeId(Ulid.Parse(v)));
 
         var dateOnlyConverter = new ValueConverter<DateOnly, string>(
             v => v.ToString("yyyy-MM-dd"),
@@ -72,12 +68,7 @@ internal sealed class ContractsDbContext(
             {
                 employee.Property(e => e.Id)
                     .HasElementName("_id")
-                    .HasConversion(contractEmployeeIdConverter);
-
-                employee.Property(e => e.EmployeeId)
-                    .IsRequired()
-                    .HasElementName("EmployeeId")
-                    .HasConversion(ulidConverter);
+                    .HasConversion(employeeIdConverter);
 
                 employee.Property(e => e.AllocatedHours)
                     .IsRequired()

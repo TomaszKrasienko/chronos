@@ -1,3 +1,4 @@
+using chronos.shared.configuration.Options;
 using Figgle.Fonts;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;

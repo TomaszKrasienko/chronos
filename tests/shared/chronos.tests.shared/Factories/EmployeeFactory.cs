@@ -1,6 +1,6 @@
 using chronos.employees.core.Domain;
-using chronos.employees.core.Domain.Identifiers;
 using chronos.employees.core.Domain.ValueObjects;
+using chronos.shared.kernel.Identifiers;
 
 namespace chronos.tests.shared.Factories;
 

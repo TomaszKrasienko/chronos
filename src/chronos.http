@@ -1,31 +1,121 @@
-#docker_configuration
-# @employees_host = http://localhost:11001/api
+# Reverse Proxy
+@host = http://localhost:10000
 
-#IDE_configuration
-# @employees_host = http://localhost:5001/api
-# @time_loggers_host = http://localhost:5002/api
+### ==================== EMPLOYEES ====================
 
-@employees_host = http://localhost:5005
-
-### Scenario: Create Employee and Time Logger
-
-### Step 1: Create Employee
+### Create Employee
 # @name create_employee
-POST {{employees_host}}/employees
+POST {{host}}/employees
 Content-Type: application/json
 
 {
-  "firstName": "Johnnie",
-  "lastName": "Doe",
-  "email":"jdchronos.com",
+  "firstName": "Jacob",
+  "lastName": "Micha",
+  "email": "j.micha@chronos.com",
   "supervisorId": null
 }
 
 ###
-@employee_id = {{create_employee.response.body.$}}
+@employee_id = {{create_employee.response.headers.X-Resource-Id}}
 
-### Step 3: Get Employee Details
-GET {{employees_host}}/employees
+### Get All Employees
+GET {{host}}/employees
 
-### Step 3: Get Employee Details
-GET {{employees_host}}/employees/{{employee_id}}
+### Get Employee by ID
+GET {{host}}/employees/{{employee_id}}
+
+### Delete Employee
+DELETE {{host}}/employees/{{employee_id}}
+
+### ==================== CONTRACTS ====================
+
+### Create Contract
+# @name create_contract
+POST {{host}}/contracts
+Content-Type: application/json
+
+{
+  "companyName": "Acme Corporation",
+  "assignmentDate": "2026-04-01"
+}
+
+###
+# @contract_id = {{create_contract.response.body.$}}
+@contract_id = 01KNCMW3NNHP2TR8CAZ3RYPTMH
+
+###
+@new_employee_id = 01KNCQQNGFKAQEQ6SA40SNXE6W
+
+### Get All Contracts
+GET {{host}}/contracts
+
+### Get Contract by ID
+GET {{host}}/contracts/{{contract_id}}
+
+### Assign Employee to Contract
+# @name assign_employee
+POST {{host}}/contracts/{{contract_id}}/employees
+Content-Type: application/json
+
+{
+  "employeeId": "{{new_employee_id}}",
+  "from": "2026-04-04",
+  "to": "2026-12-31",
+  "allocatedHours": 160
+}
+
+### Get Contract with Employee
+GET {{host}}/contracts/{{contract_id}}
+
+###
+@contract_employee_id = {{assign_employee.response.body.$}}
+
+### Update Employee Allocated Hours
+PATCH {{host}}/contracts/{{contract_id}}/employees/{{contract_employee_id}}/allocated-hours
+Content-Type: application/json
+
+{
+  "allocatedHours": 200
+}
+
+### Update Employee Assignment Period
+PATCH {{host}}/contracts/{{contract_id}}/employees/{{contract_employee_id}}/assignment-period
+Content-Type: application/json
+
+{
+  "from": "2026-05-01",
+  "to": "2026-11-30"
+}
+
+### Remove Employee from Contract
+DELETE {{host}}/contracts/{{contract_id}}/employees/{{contract_employee_id}}
+
+### Close Contract
+PATCH {{host}}/contracts/{{contract_id}}/close
+Content-Type: application/json
+
+{
+  "closingDate": "2026-12-31"
+}
+
+### ==================== TIME LOGS ====================
+
+###
+@time_logs_employee_id = 01KNPX9DCVNY3RFPQXDVY2414Y
+
+### Create Time Log
+# @name create_time_log
+POST http://localhost:5001/api/time-logs
+Content-Type: application/json
+X-Employee-Id: {{time_logs_employee_id}}
+
+{
+  "contractId": "01KNPXJ93VW7KPMAKRBH495T2T",
+  "hours": "08:00:00",
+  "topic": "Development",
+  "notes": "Implemented new feature"
+}
+
+### Get Time Logs by Period
+GET http://localhost:5001/api/time-logs/years/2026/months/4
+X-Employee-Id: 01KNPX9DCVNY3RFPQXDVY2414Y

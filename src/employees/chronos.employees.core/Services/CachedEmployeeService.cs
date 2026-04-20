@@ -1,6 +1,6 @@
 using chronos.employees.core.Domain;
-using chronos.employees.core.Domain.Identifiers;
 using chronos.employees.core.Domain.ValueObjects;
+using chronos.shared.kernel.Identifiers;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 

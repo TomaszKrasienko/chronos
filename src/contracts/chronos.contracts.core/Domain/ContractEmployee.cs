@@ -1,20 +1,15 @@
-using chronos.contracts.core.Domain.Identifiers;
 using chronos.contracts.core.Domain.Rules;
 using chronos.contracts.core.Domain.ValueObjects;
 using chronos.shared.kernel;
+using chronos.shared.kernel.Identifiers;
 
 namespace chronos.contracts.core.Domain;
 
 /// <summary>
 /// Entity representing an employee assigned to a contract with allocation details.
 /// </summary>
-public sealed class ContractEmployee : Entity<ContractEmployeeId>
+public sealed class ContractEmployee : Entity<EmployeeId>
 {
-    /// <summary>
-    /// Gets the employee identifier from Employee bounded context.
-    /// </summary>
-    public Ulid EmployeeId { get; private set; }
-
     /// <summary>
     /// Gets the assignment period for this employee.
     /// </summary>
@@ -32,25 +27,22 @@ public sealed class ContractEmployee : Entity<ContractEmployeeId>
 #pragma warning restore CS8618
 
     private ContractEmployee(
-        ContractEmployeeId id,
-        Ulid employeeId,
+        EmployeeId employeeId,
         AssignmentPeriod assignmentPeriod,
-        int allocatedHours) : base(id)
+        int allocatedHours) : base(employeeId)
     {
-        EmployeeId = employeeId;
         AssignmentPeriod = assignmentPeriod;
         AllocatedHours = allocatedHours;
     }
 
     internal static ContractEmployee Create(
-        Ulid employeeId,
+        EmployeeId employeeId,
         AssignmentPeriod assignmentPeriod,
         int allocatedHours)
     {
         CheckRule(new AllocatedHoursMustBeGreaterThanZeroRule(allocatedHours));
         
         return new ContractEmployee(
-            ContractEmployeeId.New(),
             employeeId,
             assignmentPeriod,
             allocatedHours);

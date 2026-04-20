@@ -1,4 +1,4 @@
-using chronos.contracts.core.Domain.Identifiers;
+using chronos.shared.kernel.Identifiers;
 using chronos.contracts.core.DTOs.Requests;
 using chronos.contracts.core.Services;
 
@@ -89,7 +89,7 @@ app.MapPost(
     {
         await contractsService.AssignEmployeeAsync(
             new ContractId(contractId),
-            request.EmployeeId,
+            new EmployeeId(request.EmployeeId),
             request.From,
             request.To,
             request.AllocatedHours,
@@ -110,7 +110,7 @@ app.MapDelete(
     {
         await contractsService.RemoveEmployeeAsync(
             new ContractId(contractId),
-            new ContractEmployeeId(contractEmployeeId),
+            new EmployeeId(contractEmployeeId),
             cancellationToken);
 
         return Results.NoContent();
@@ -129,7 +129,7 @@ app.MapPatch(
     {
         await contractsService.UpdateEmployeeAllocatedHoursAsync(
             new ContractId(contractId),
-            new ContractEmployeeId(contractEmployeeId),
+            new EmployeeId(contractEmployeeId),
             request.AllocatedHours,
             cancellationToken);
 
@@ -167,7 +167,7 @@ app.MapPatch(
     {
         await contractsService.UpdateEmployeeAssignmentPeriodAsync(
             new ContractId(contractId),
-            new ContractEmployeeId(contractEmployeeId),
+            new EmployeeId(contractEmployeeId),
             request.From,
             request.To,
             cancellationToken);

@@ -1,5 +1,6 @@
 using chronos.contracts.core.Domain;
 using chronos.shared.kernel.Exceptions;
+using chronos.shared.kernel.Identifiers;
 using chronos.tests.shared.Factories;
 using Shouldly;
 
@@ -12,7 +13,7 @@ public sealed class AssignEmployeeTests
     {
         // Arrange
         var contract = ContractFactory.Create();
-        var employeeId = Ulid.NewUlid();
+        var employeeId = EmployeeId.New();
         var assignmentPeriod = AssignmentPeriodFactory.Create();
         var allocatedHours = 160;
 
@@ -25,7 +26,7 @@ public sealed class AssignEmployeeTests
         // Assert
         contract.Employees.ShouldHaveSingleItem();
         var employee = contract.Employees.First();
-        employee.EmployeeId.ShouldBe(employeeId);
+        employee.Id.ShouldBe(employeeId);
         employee.AssignmentPeriod.ShouldBe(assignmentPeriod);
         employee.AllocatedHours.ShouldBe(allocatedHours);
     }
@@ -34,7 +35,7 @@ public sealed class AssignEmployeeTests
     public void GivenEmployeeAlreadyAssigned_WhenAssigningEmployee_ThenThrowsDomainExceptionWithCode_employee_already_assigned_to_contract()
     {
         // Arrange
-        var employeeId = Ulid.NewUlid();
+        var employeeId = EmployeeId.New();
         var contract = ContractFactory.CreateWithEmployee(employeeId: employeeId);
 
         // Act
@@ -53,7 +54,7 @@ public sealed class AssignEmployeeTests
 
         // Act
         var exception = Should.Throw<DomainException>(
-            () => contract.AssignEmployee(Ulid.NewUlid(), AssignmentPeriodFactory.Create(), 0));
+            () => contract.AssignEmployee(EmployeeId.New(), AssignmentPeriodFactory.Create(), 0));
 
         // Assert
         exception.Code.ShouldBe("allocated_hours_must_be_greater_than_zero");
@@ -69,7 +70,7 @@ public sealed class AssignEmployeeTests
 
         // Act
         var exception = Should.Throw<DomainException>(
-            () => contract.AssignEmployee(Ulid.NewUlid(), assignmentPeriod, 160));
+            () => contract.AssignEmployee(EmployeeId.New(), assignmentPeriod, 160));
 
         // Assert
         exception.Code.ShouldBe("employee_assignment_cannot_start_before_contract");

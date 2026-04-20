@@ -13,7 +13,8 @@ internal static class DalServicesExtensions
         IConfiguration configuration)
         => services
             .AddOptions(configuration)
-            .AddContext();
+            .AddContext()
+            .AddScoped<ITimeLogsRepository, TimeLogsRepository>();
 
     private static IServiceCollection AddContext(
         this IServiceCollection services)

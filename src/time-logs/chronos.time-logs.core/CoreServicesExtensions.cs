@@ -1,3 +1,5 @@
+using chronos.time_logs.core.Events.External;
+using chronos.time_logs.core.Services;
 using Microsoft.Extensions.Configuration;
 
 // ReSharper disable once CheckNamespace
@@ -12,5 +14,8 @@ public static class CoreServicesExtensions
             .AddSingleton(TimeProvider.System)
             .AddDal(configuration)
             .AddCommunication(configuration)
-            .AddRabbitMq(configuration);
+            .AddRabbitMq(configuration)
+            .AddScoped<IReadTimeReportService, TimeReportService>()
+            .AddScoped<IWriteTimeReportService, TimeReportService>()
+            .AddScoped<ITimeLogAutomaticallyAcceptedEventHandler, TimeLogAutomaticallyAcceptedEventHandler>();
 }

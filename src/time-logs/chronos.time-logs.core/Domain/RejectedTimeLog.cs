@@ -1,4 +1,5 @@
 using chronos.shared.kernel.Identifiers;
+using chronos.time_logs.core.Domain.ValueObjects;
 
 namespace chronos.time_logs.core.Domain;
 
@@ -7,6 +8,8 @@ namespace chronos.time_logs.core.Domain;
 /// </summary>
 public sealed class RejectedTimeLog : TimeLog
 {
+    public const string StatusName = "Rejected";
+
     /// <summary>
     /// Gets the rejection reason.
     /// </summary>
@@ -30,15 +33,15 @@ public sealed class RejectedTimeLog : TimeLog
 
     private RejectedTimeLog(
         TimeLogId id,
-        Ulid employeeId,
-        Ulid contractId,
-        ValueObjects.LoggedHours hours,
+        EmployeeId employeeId,
+        ContractId contractId,
+        LoggedTime time,
         string topic,
         string? notes,
         DateTime createdAt,
         string reason,
         Ulid rejectedBy,
-        DateTime rejectedAt) : base(id, employeeId, contractId, hours, topic, notes, createdAt)
+        DateTime rejectedAt) : base(id, employeeId, contractId, time, topic, notes, createdAt)
     {
         Reason = reason;
         RejectedBy = rejectedBy;
@@ -53,7 +56,7 @@ public sealed class RejectedTimeLog : TimeLog
     /// <param name="reason">The rejection reason.</param>
     /// <param name="timeProvider">The time provider.</param>
     internal static RejectedTimeLog FromPending(
-        WaitingForAcceptation pending,
+        WaitingForAcceptationTimeLog pending,
         Ulid rejectedBy,
         string reason,
         TimeProvider timeProvider)
@@ -61,7 +64,7 @@ public sealed class RejectedTimeLog : TimeLog
             pending.Id,
             pending.EmployeeId,
             pending.ContractId,
-            pending.Hours,
+            pending.Time,
             pending.Topic,
             pending.Notes,
             pending.CreatedAt,

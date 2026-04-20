@@ -1,5 +1,5 @@
-using chronos.contracts.core.Domain.Identifiers;
 using chronos.shared.kernel;
+using chronos.shared.kernel.Identifiers;
 
 namespace chronos.contracts.core.Domain.Rules;
 
@@ -8,8 +8,8 @@ namespace chronos.contracts.core.Domain.Rules;
 /// </summary>
 internal sealed class EmployeeAssignmentMustExistRule(
     IEnumerable<ContractEmployee> employees,
-    ContractEmployeeId contractEmployeeId) : IBusinessRule
+    EmployeeId employeeId) : IBusinessRule
 {
     public string Code => "employee_assignment_not_found";
-    public bool IsBroken() => !employees.Any(e => e.Id == contractEmployeeId);
+    public bool IsBroken() => employees.All(e => e.Id != employeeId);
 }

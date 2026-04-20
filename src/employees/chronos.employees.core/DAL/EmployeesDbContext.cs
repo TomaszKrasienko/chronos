@@ -1,5 +1,5 @@
 using chronos.employees.core.Domain;
-using chronos.employees.core.Domain.Identifiers;
+using chronos.shared.kernel.Identifiers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MongoDB.EntityFrameworkCore.Extensions;

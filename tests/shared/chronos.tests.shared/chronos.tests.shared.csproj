@@ -10,6 +10,7 @@
     <ItemGroup>
         <ProjectReference Include="..\..\..\src\contracts\chronos.contracts.core\chronos.contracts.core.csproj" />
         <ProjectReference Include="..\..\..\src\employees\chronos.employees.core\chronos.employees.core.csproj" />
+        <ProjectReference Include="..\..\..\src\time-logs\chronos.time-logs.core\chronos.time-logs.core.csproj" />
     </ItemGroup>
 
 </Project>

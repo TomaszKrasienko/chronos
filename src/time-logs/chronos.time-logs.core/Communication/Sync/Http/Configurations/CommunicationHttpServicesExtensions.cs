@@ -36,9 +36,8 @@ internal static class CommunicationHttpServicesExtensions
     {
         var options = services.GetOptions<HttpCommunicationOptions>();
 
-        var employeesClientOptions = options.Clients.Single(x => x.Name == nameof(HttpEmployeesClient));
-
-        if (employeesClientOptions.ResiliencePattern == "Linear")
+        var employeesClientOptions = options.Clients.SingleOrDefault(x => x.Name == nameof(HttpEmployeesClient));
+        if (employeesClientOptions is not null)
         {
             services
                 .AddHttpClient<IEmployeesClient, HttpEmployeesClient>(config =>
@@ -49,6 +48,20 @@ internal static class CommunicationHttpServicesExtensions
                     employeesClientOptions.ResiliencePattern,
                     employeesClientOptions.Attempts,
                     employeesClientOptions.TimeSpan));
+        }
+
+        var contractsClientOptions = options.Clients.SingleOrDefault(x => x.Name == nameof(HttpContractsClient));
+        if (contractsClientOptions is not null)
+        {
+            services
+                .AddHttpClient<IContractsClient, HttpContractsClient>(config =>
+                {
+                    config.BaseAddress = new Uri(contractsClientOptions.Uri);
+                })
+                .AddPolicyHandler(GetPolicy(
+                    contractsClientOptions.ResiliencePattern,
+                    contractsClientOptions.Attempts,
+                    contractsClientOptions.TimeSpan));
         }
 
         return services;

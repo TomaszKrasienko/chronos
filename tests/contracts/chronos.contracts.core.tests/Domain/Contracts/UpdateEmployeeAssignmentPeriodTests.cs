@@ -1,5 +1,5 @@
 using chronos.contracts.core.Domain.Events;
-using chronos.contracts.core.Domain.Identifiers;
+using chronos.shared.kernel.Identifiers;
 using chronos.shared.kernel.Exceptions;
 using chronos.tests.shared.Factories;
 using Shouldly;
@@ -46,7 +46,7 @@ public sealed class UpdateEmployeeAssignmentPeriodTests
             .OfType<EmployeeAssignmentPeriodUpdatedEvent>()
             .ShouldHaveSingleItem();
         domainEvent.ContractId.ShouldBe(contract.Id);
-        domainEvent.ContractEmployeeId.ShouldBe(contractEmployeeId);
+        domainEvent.EmployeeId.ShouldBe(contractEmployeeId);
         domainEvent.From.ShouldBe(newAssignmentPeriod.From);
         domainEvent.To.ShouldBe(newAssignmentPeriod.To);
     }
@@ -56,7 +56,7 @@ public sealed class UpdateEmployeeAssignmentPeriodTests
     {
         // Arrange
         var contract = ContractFactory.Create();
-        var nonExistentEmployeeId = ContractEmployeeId.New();
+        var nonExistentEmployeeId = EmployeeId.New();
         var assignmentPeriod = AssignmentPeriodFactory.Create();
 
         // Act

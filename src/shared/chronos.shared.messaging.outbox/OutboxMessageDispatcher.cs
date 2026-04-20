@@ -11,47 +11,27 @@ namespace chronos.shared.messaging.outbox;
 internal sealed class OutboxMessageDispatcher(
     OutboxDbContext dbContext,
     TimeProvider timeProvider,
-    IMessagesRouteRegistry messagesRouteRegistry) : IMessageDispatcher
+    ISendingNameConvention sendingNameConvention) : IMessageDispatcher
 {
     /// <inheritdoc />
     public async Task Send<T>(
         T message,
         CancellationToken? cancellationToken = null) where T : class, IMessage
     {
-        var messageRoute = messagesRouteRegistry
-            .GetRoute<T>();
+        var messageRoute = sendingNameConvention.GetExchangeAndRoutingKey(message);
 
-        if (messageRoute.RoutingKeys.Count == 0)
-        {
-            var outboxMessage = OutboxMessage.Create(
-                message,
-                messageRoute.Exchange,
-                null,
-                correlationId: null,
-                sentAt: null,
-                retryCount: 0,
-                timeProvider);
-            
-            await dbContext.OutboxMessages.AddAsync(
-                outboxMessage,
-                cancellationToken ?? CancellationToken.None);
-        }
+        var outboxMessage = OutboxMessage.Create(
+            message,
+            messageRoute.exchange,
+            messageRoute.routingKey,
+            correlationId: null,
+            sentAt: null,
+            retryCount: 0,
+            timeProvider);
         
-        foreach (var routingKey in messageRoute.RoutingKeys)
-        {
-            var outboxMessage = OutboxMessage.Create(
-                message,
-                messageRoute.Exchange,
-                routingKey,
-                correlationId: null,
-                sentAt: null,
-                retryCount: 0,
-                timeProvider);
-            
-            await dbContext.OutboxMessages.AddAsync(
-                outboxMessage,
-                cancellationToken ?? CancellationToken.None);
-        }
+        await dbContext.OutboxMessages.AddAsync(
+            outboxMessage,
+            cancellationToken ?? CancellationToken.None);
 
         await dbContext.SaveChangesAsync(cancellationToken ?? CancellationToken.None);
     }

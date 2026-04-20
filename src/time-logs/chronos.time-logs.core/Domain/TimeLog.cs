@@ -12,17 +12,17 @@ public abstract class TimeLog : Entity<TimeLogId>
     /// <summary>
     /// Gets the employee identifier who logged the time.
     /// </summary>
-    public Ulid EmployeeId { get; protected set; }
+    public EmployeeId EmployeeId { get; protected set; }
 
     /// <summary>
     /// Gets the contract identifier for which time is logged.
     /// </summary>
-    public Ulid ContractId { get; protected set; }
+    public ContractId ContractId { get; protected set; }
 
     /// <summary>
-    /// Gets the logged hours.
+    /// Gets the logged time.
     /// </summary>
-    public LoggedHours Hours { get; protected set; }
+    public LoggedTime Time { get; protected set; }
 
     /// <summary>
     /// Gets the topic for the time log.
@@ -47,16 +47,16 @@ public abstract class TimeLog : Entity<TimeLogId>
 
     protected TimeLog(
         TimeLogId id,
-        Ulid employeeId,
-        Ulid contractId,
-        LoggedHours hours,
+        EmployeeId employeeId,
+        ContractId contractId,
+        LoggedTime time,
         string topic,
         string? notes,
         DateTime createdAt) : base(id)
     {
         EmployeeId = employeeId;
         ContractId = contractId;
-        Hours = hours;
+        Time = time;
         Topic = topic;
         Notes = notes;
         CreatedAt = createdAt;

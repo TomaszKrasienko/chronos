@@ -1,4 +1,5 @@
 using chronos.shared.kernel.Identifiers;
+using chronos.time_logs.core.Domain.ValueObjects;
 
 namespace chronos.time_logs.core.Domain;
 
@@ -7,6 +8,8 @@ namespace chronos.time_logs.core.Domain;
 /// </summary>
 public sealed class AcceptedTimeLog : TimeLog
 {
+    public const string StatusName = "Accepted";
+
     /// <summary>
     /// Gets the identifier of the supervisor who accepted the time log.
     /// </summary>
@@ -23,14 +26,14 @@ public sealed class AcceptedTimeLog : TimeLog
 
     private AcceptedTimeLog(
         TimeLogId id,
-        Ulid employeeId,
-        Ulid contractId,
-        ValueObjects.LoggedHours hours,
+        EmployeeId employeeId,
+        ContractId contractId,
+        LoggedTime time,
         string topic,
         string? notes,
         DateTime createdAt,
         Ulid acceptedBy,
-        DateTime acceptedAt) : base(id, employeeId, contractId, hours, topic, notes, createdAt)
+        DateTime acceptedAt) : base(id, employeeId, contractId, time, topic, notes, createdAt)
     {
         AcceptedBy = acceptedBy;
         AcceptedAt = acceptedAt;
@@ -43,14 +46,14 @@ public sealed class AcceptedTimeLog : TimeLog
     /// <param name="acceptedBy">The supervisor who accepted.</param>
     /// <param name="timeProvider">The time provider.</param>
     internal static AcceptedTimeLog FromPending(
-        WaitingForAcceptation pending,
+        WaitingForAcceptationTimeLog pending,
         Ulid acceptedBy,
         TimeProvider timeProvider)
         => new(
             pending.Id,
             pending.EmployeeId,
             pending.ContractId,
-            pending.Hours,
+            pending.Time,
             pending.Topic,
             pending.Notes,
             pending.CreatedAt,

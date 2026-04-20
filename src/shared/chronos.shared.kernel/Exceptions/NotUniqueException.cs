@@ -7,7 +7,7 @@ namespace chronos.shared.kernel.Exceptions;
 /// </summary>
 public sealed class NotUniqueException(
     string entityName,
-    string[]? @params = null) : ChronosException($"{entityName}_is_not_unique", @params)
+    string[]? @params = null) : ChronosException($"{entityName.ToLower()}_is_not_unique", @params)
 {
     public override HttpStatusCode StatusCode { get; } = HttpStatusCode.BadRequest;
 }

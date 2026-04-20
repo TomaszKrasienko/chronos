@@ -76,6 +76,7 @@ public sealed class OutboxMessage
     {
         RetryCount++;
         ErrorMessage = errorMessage;
+        SentAt = null;
     }
 
     public void MarkAsSent(TimeProvider timeProvider)

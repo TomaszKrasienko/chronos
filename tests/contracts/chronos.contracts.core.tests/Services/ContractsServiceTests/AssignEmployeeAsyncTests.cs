@@ -1,6 +1,6 @@
 using chronos.contracts.core.Communication.Sync.Http;
 using chronos.contracts.core.DAL;
-using chronos.contracts.core.Domain.Identifiers;
+using chronos.shared.kernel.Identifiers;
 using chronos.contracts.core.Services;
 using chronos.shared.kernel.Exceptions;
 using chronos.shared.messaging;
@@ -17,7 +17,7 @@ public sealed class AssignEmployeeAsyncTests
     {
         // Arrange
         var contract = ContractFactory.Create();
-        var employeeId = Ulid.NewUlid();
+        var employeeId = EmployeeId.New();
         var from = new DateOnly(2026, 4, 1);
         var to = new DateOnly(2026, 12, 31);
         var allocatedHours = 160;
@@ -34,7 +34,7 @@ public sealed class AssignEmployeeAsyncTests
 
         // Assert
         contract.Employees.Count.ShouldBe(1);
-        contract.Employees[0].EmployeeId.ShouldBe(employeeId);
+        contract.Employees[0].Id.ShouldBe(employeeId);
         contract.Employees[0].AllocatedHours.ShouldBe(allocatedHours);
         await _contractsRepository.Received(1).UpdateAsync(contract, Arg.Any<CancellationToken>());
     }
@@ -44,7 +44,7 @@ public sealed class AssignEmployeeAsyncTests
     {
         // Arrange
         var contractId = ContractId.New();
-        var employeeId = Ulid.NewUlid();
+        var employeeId = EmployeeId.New();
         var from = new DateOnly(2026, 4, 1);
         var to = new DateOnly(2026, 12, 31);
         var allocatedHours = 160;
@@ -58,7 +58,7 @@ public sealed class AssignEmployeeAsyncTests
 
         // Assert
         var exception = await act.ShouldThrowAsync<NotFoundException>();
-        exception.Code.ShouldBe("Employee_not_found");
+        exception.Code.ShouldBe("employee_not_found");
     }
 
     [Fact]
@@ -66,7 +66,7 @@ public sealed class AssignEmployeeAsyncTests
     {
         // Arrange
         var contractId = ContractId.New();
-        var employeeId = Ulid.NewUlid();
+        var employeeId = EmployeeId.New();
         var from = new DateOnly(2026, 4, 1);
         var to = new DateOnly(2026, 12, 31);
         var allocatedHours = 160;
@@ -83,22 +83,22 @@ public sealed class AssignEmployeeAsyncTests
 
         // Assert
         var exception = await act.ShouldThrowAsync<NotFoundException>();
-        exception.Code.ShouldBe("Contract_not_found");
+        exception.Code.ShouldBe("contract_not_found");
     }
 
     private readonly IContractsRepository _contractsRepository;
-    private readonly IMessagePublisher _messagePublisher;
+    private readonly IMessageDispatcher _messageDispatcher;
     private readonly IEmployeesClient _employeesClient;
     private readonly ContractsService _contractsService;
 
     public AssignEmployeeAsyncTests()
     {
         _contractsRepository = Substitute.For<IContractsRepository>();
-        _messagePublisher = Substitute.For<IMessagePublisher>();
+        _messageDispatcher = Substitute.For<IMessageDispatcher>();
         _employeesClient = Substitute.For<IEmployeesClient>();
         _contractsService = new ContractsService(
             _contractsRepository,
-            _messagePublisher,
+            _messageDispatcher,
             _employeesClient);
     }
 }

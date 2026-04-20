@@ -2,10 +2,10 @@ using chronos.contracts.core.Communication.Sync.Http;
 using chronos.contracts.core.DAL;
 using chronos.contracts.core.Domain;
 using chronos.contracts.core.Domain.Events;
-using chronos.contracts.core.Domain.Identifiers;
 using chronos.contracts.core.Domain.ValueObjects;
 using chronos.contracts.core.DTOs.Responses;
 using chronos.shared.kernel.Exceptions;
+using chronos.shared.kernel.Identifiers;
 using chronos.shared.messaging;
 
 namespace chronos.contracts.core.Services;
@@ -46,7 +46,7 @@ internal sealed class ContractsService(
 
     public async Task AssignEmployeeAsync(
         ContractId contractId,
-        Ulid employeeId,
+        EmployeeId employeeId,
         DateOnly from,
         DateOnly? to,
         int allocatedHours,
@@ -67,25 +67,25 @@ internal sealed class ContractsService(
 
     public async Task RemoveEmployeeAsync(
         ContractId contractId,
-        ContractEmployeeId contractEmployeeId,
+        EmployeeId employeeId,
         CancellationToken cancellationToken = default)
     {
         var contract = await GetContractAsync(contractId, cancellationToken);
 
-        contract.RemoveEmployee(contractEmployeeId);
+        contract.RemoveEmployee(employeeId);
 
         await contractsRepository.UpdateAsync(contract, cancellationToken);
     }
 
     public async Task UpdateEmployeeAllocatedHoursAsync(
         ContractId contractId,
-        ContractEmployeeId contractEmployeeId,
+        EmployeeId employeeId,
         int allocatedHours,
         CancellationToken cancellationToken = default)
     {
         var contract = await GetContractAsync(contractId, cancellationToken);
 
-        contract.UpdateEmployeeAllocatedHours(contractEmployeeId, allocatedHours);
+        contract.UpdateEmployeeAllocatedHours(employeeId, allocatedHours);
 
         await contractsRepository.UpdateAsync(contract, cancellationToken);
     }
@@ -104,7 +104,7 @@ internal sealed class ContractsService(
 
     public async Task UpdateEmployeeAssignmentPeriodAsync(
         ContractId contractId,
-        ContractEmployeeId contractEmployeeId,
+        EmployeeId employeeId,
         DateOnly from,
         DateOnly? to,
         CancellationToken cancellationToken = default)
@@ -112,7 +112,7 @@ internal sealed class ContractsService(
         var contract = await GetContractAsync(contractId, cancellationToken);
         var assignmentPeriod = AssignmentPeriod.Create(from, to);
 
-        contract.UpdateEmployeeAssignmentPeriod(contractEmployeeId, assignmentPeriod);
+        contract.UpdateEmployeeAssignmentPeriod(employeeId, assignmentPeriod);
 
         await contractsRepository.UpdateAsync(contract, cancellationToken);
     }

@@ -9,6 +9,11 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <InternalsVisibleTo Include="chronos.time-logs.core.tests" />
+        <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
+    </ItemGroup>
+
+    <ItemGroup>
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.11" />
         <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.11" />
         <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.11" />
@@ -26,6 +31,7 @@
         <ProjectReference Include="..\..\shared\chronos.shared.kernel\chronos.shared.kernel.csproj" />
         <ProjectReference Include="..\..\shared\chronos.shared.configuration\chronos.shared.configuration.csproj" />
         <ProjectReference Include="..\..\shared\chronos.shared.exceptions\chronos.shared.exceptions.csproj" />
+        <ProjectReference Include="..\..\shared\chronos.shared.messaging.outbox\chronos.shared.messaging.outbox.csproj" />
         <ProjectReference Include="..\..\shared\chronos.shared.messaging.rabbit-mq\chronos.shared.messaging.rabbit-mq.csproj" />
         <ProjectReference Include="..\..\shared\chronos.shared.messaging\chronos.shared.messaging.csproj" />
     </ItemGroup>

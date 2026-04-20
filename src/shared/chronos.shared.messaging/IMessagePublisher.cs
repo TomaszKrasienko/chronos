@@ -8,6 +8,7 @@ public interface IMessagePublisher
         T message,
         string exchange,
         string routingKey,
-        AsyncEventHandler<BasicReturnEventArgs>? basicReturn,
-        CancellationToken? cancellationToken = null) where T : class;
+        string? messageId = null,
+        AsyncEventHandler<BasicReturnEventArgs>? basicReturn = null,
+        CancellationToken? cancellationToken = null) where T : class, IMessage;
 }
