@@ -73,6 +73,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "chronos.time-logs.api", "sr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "chronos.shared.messaging.outbox", "src\shared\chronos.shared.messaging.outbox\chronos.shared.messaging.outbox.csproj", "{DEA38E8E-74AA-4984-B1E1-8353F94FC18F}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "time-logs", "time-logs", "{A5065430-3155-2504-3297-FB24F9C3F2FF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "chronos.time-logs.core.tests", "tests\time-logs\chronos.time-logs.core.tests\chronos.time-logs.core.tests.csproj", "{453F9040-8B33-48A5-84B8-485E90581394}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -323,6 +327,18 @@ Global
 		{DEA38E8E-74AA-4984-B1E1-8353F94FC18F}.Release|x64.Build.0 = Release|Any CPU
 		{DEA38E8E-74AA-4984-B1E1-8353F94FC18F}.Release|x86.ActiveCfg = Release|Any CPU
 		{DEA38E8E-74AA-4984-B1E1-8353F94FC18F}.Release|x86.Build.0 = Release|Any CPU
+		{453F9040-8B33-48A5-84B8-485E90581394}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{453F9040-8B33-48A5-84B8-485E90581394}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{453F9040-8B33-48A5-84B8-485E90581394}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{453F9040-8B33-48A5-84B8-485E90581394}.Debug|x64.Build.0 = Debug|Any CPU
+		{453F9040-8B33-48A5-84B8-485E90581394}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{453F9040-8B33-48A5-84B8-485E90581394}.Debug|x86.Build.0 = Debug|Any CPU
+		{453F9040-8B33-48A5-84B8-485E90581394}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{453F9040-8B33-48A5-84B8-485E90581394}.Release|Any CPU.Build.0 = Release|Any CPU
+		{453F9040-8B33-48A5-84B8-485E90581394}.Release|x64.ActiveCfg = Release|Any CPU
+		{453F9040-8B33-48A5-84B8-485E90581394}.Release|x64.Build.0 = Release|Any CPU
+		{453F9040-8B33-48A5-84B8-485E90581394}.Release|x86.ActiveCfg = Release|Any CPU
+		{453F9040-8B33-48A5-84B8-485E90581394}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -358,5 +374,7 @@ Global
 		{BE7D3AF4-8816-4D35-B756-A25A62DC5E66} = {CFAA4F3F-0A86-0C36-EEB9-8277AD51D8E0}
 		{609AA761-E4FE-4688-9803-EE4B9ED978D0} = {CFAA4F3F-0A86-0C36-EEB9-8277AD51D8E0}
 		{DEA38E8E-74AA-4984-B1E1-8353F94FC18F} = {7A467E41-8532-408F-923E-432F470C44EB}
+		{A5065430-3155-2504-3297-FB24F9C3F2FF} = {21666B80-203B-4CDB-B508-846741124FC1}
+		{453F9040-8B33-48A5-84B8-485E90581394} = {A5065430-3155-2504-3297-FB24F9C3F2FF}
 	EndGlobalSection
 EndGlobal

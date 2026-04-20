@@ -54,18 +54,18 @@ public sealed class CreateContractAsyncTests
     }
 
     private readonly IContractsRepository _contractsRepository;
-    private readonly IMessagePublisher _messagePublisher;
+    private readonly IMessageDispatcher _messageDispatcher;
     private readonly IEmployeesClient _employeesClient;
     private readonly ContractsService _contractsService;
 
     public CreateContractAsyncTests()
     {
         _contractsRepository = Substitute.For<IContractsRepository>();
-        _messagePublisher = Substitute.For<IMessagePublisher>();
+        _messageDispatcher = Substitute.For<IMessageDispatcher>();
         _employeesClient = Substitute.For<IEmployeesClient>();
         _contractsService = new ContractsService(
             _contractsRepository,
-            _messagePublisher,
+            _messageDispatcher,
             _employeesClient);
     }
 }

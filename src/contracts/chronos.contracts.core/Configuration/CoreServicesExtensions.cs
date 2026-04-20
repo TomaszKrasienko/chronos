@@ -12,6 +12,7 @@ public static class CoreServicesExtensions
         IConfiguration configuration)
     {
         services
+            .AddSingleton(TimeProvider.System)
             .AddDal(configuration)
             .AddCommunication(configuration)
             .AddMemoryCache()
@@ -19,7 +20,8 @@ public static class CoreServicesExtensions
             .AddScoped<IReadContractsService, ContractsService>()
             .Decorate<IReadContractsService, CachedContractsService>()
             .AddScoped<IContractsCache, CachedContractsService>()
-            .AddScoped<IEmployeeDeletedEventHandler, EmployeeDeletedEventHandler>();
+            .AddScoped<IEmployeeDeletedEventHandler, EmployeeDeletedEventHandler>()
+            .AddScoped<ITimeLogWaitingForAcceptationCreatedEventHandler, TimeLogWaitingForAcceptationCreatedEventHandler>();
 
         return services;
     }

@@ -1,5 +1,6 @@
 using chronos.contracts.core.Domain;
 using chronos.contracts.core.Domain.ValueObjects;
+using chronos.shared.kernel.Identifiers;
 
 namespace chronos.tests.shared.Factories;
 
@@ -16,13 +17,13 @@ public static class ContractFactory
             contractPeriod ?? ContractPeriodFactory.Create());
 
     public static Contract CreateWithEmployee(
-        Ulid? employeeId = null,
+        EmployeeId? employeeId = null,
         AssignmentPeriod? assignmentPeriod = null,
         int allocatedHours = 160)
     {
         var contract = Create();
         contract.AssignEmployee(
-            employeeId ?? Ulid.NewUlid(),
+            employeeId ?? EmployeeId.New(),
             assignmentPeriod ?? AssignmentPeriodFactory.Create(),
             allocatedHours);
         return contract;

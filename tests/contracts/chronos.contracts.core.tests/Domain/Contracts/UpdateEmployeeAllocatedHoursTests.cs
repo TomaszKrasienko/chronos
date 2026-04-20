@@ -1,4 +1,4 @@
-using chronos.contracts.core.Domain.Identifiers;
+using chronos.shared.kernel.Identifiers;
 using chronos.shared.kernel.Exceptions;
 using chronos.tests.shared.Factories;
 using Shouldly;
@@ -27,7 +27,7 @@ public sealed class UpdateEmployeeAllocatedHoursTests
     {
         // Arrange
         var contract = ContractFactory.Create();
-        var nonExistingId = new ContractEmployeeId(Ulid.NewUlid());
+        var nonExistingId = new EmployeeId(Ulid.NewUlid());
 
         // Act
         var exception = Should.Throw<DomainException>(

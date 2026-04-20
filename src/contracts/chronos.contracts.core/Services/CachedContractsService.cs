@@ -1,5 +1,5 @@
-using chronos.contracts.core.Domain.Identifiers;
 using chronos.contracts.core.DTOs.Responses;
+using chronos.shared.kernel.Identifiers;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 

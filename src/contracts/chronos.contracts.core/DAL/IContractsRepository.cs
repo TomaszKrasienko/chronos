@@ -1,5 +1,5 @@
 using chronos.contracts.core.Domain;
-using chronos.contracts.core.Domain.Identifiers;
+using chronos.shared.kernel.Identifiers;
 
 namespace chronos.contracts.core.DAL;
 
@@ -51,5 +51,5 @@ public interface IContractsRepository
     /// <param name="employeeId">The employee identifier.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>List of contracts with the employee assigned.</returns>
-    Task<IReadOnlyList<Contract>> GetByEmployeeIdAsync(Ulid employeeId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<Contract>> GetByEmployeeIdAsync(EmployeeId employeeId, CancellationToken cancellationToken = default);
 }

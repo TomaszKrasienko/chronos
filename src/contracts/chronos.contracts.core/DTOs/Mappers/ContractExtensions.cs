@@ -24,7 +24,6 @@ public static class ContractExtensions
     private static ContractEmployeeResponseDto MapEmployeeToDto(ContractEmployee employee)
         => new(
             employee.Id.Value.ToString(),
-            employee.EmployeeId.ToString(),
             new AssignmentPeriodResponseDto(
                 employee.AssignmentPeriod.From,
                 employee.AssignmentPeriod.To),

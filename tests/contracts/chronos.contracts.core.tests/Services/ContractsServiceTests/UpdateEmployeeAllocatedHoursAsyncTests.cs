@@ -1,6 +1,6 @@
 using chronos.contracts.core.Communication.Sync.Http;
 using chronos.contracts.core.DAL;
-using chronos.contracts.core.Domain.Identifiers;
+using chronos.shared.kernel.Identifiers;
 using chronos.contracts.core.Services;
 using chronos.shared.kernel.Exceptions;
 using chronos.shared.messaging;
@@ -36,7 +36,7 @@ public sealed class UpdateEmployeeAllocatedHoursAsyncTests
     {
         // Arrange
         var contractId = ContractId.New();
-        var contractEmployeeId = ContractEmployeeId.New();
+        var contractEmployeeId = EmployeeId.New();
         var newAllocatedHours = 200;
 
         _contractsRepository.GetByIdAsync(contractId, Arg.Any<CancellationToken>())
@@ -50,18 +50,18 @@ public sealed class UpdateEmployeeAllocatedHoursAsyncTests
     }
 
     private readonly IContractsRepository _contractsRepository;
-    private readonly IMessagePublisher _messagePublisher;
+    private readonly IMessageDispatcher _messageDispatcher;
     private readonly IEmployeesClient _employeesClient;
     private readonly ContractsService _contractsService;
 
     public UpdateEmployeeAllocatedHoursAsyncTests()
     {
         _contractsRepository = Substitute.For<IContractsRepository>();
-        _messagePublisher = Substitute.For<IMessagePublisher>();
+        _messageDispatcher = Substitute.For<IMessageDispatcher>();
         _employeesClient = Substitute.For<IEmployeesClient>();
         _contractsService = new ContractsService(
             _contractsRepository,
-            _messagePublisher,
+            _messageDispatcher,
             _employeesClient);
     }
 }

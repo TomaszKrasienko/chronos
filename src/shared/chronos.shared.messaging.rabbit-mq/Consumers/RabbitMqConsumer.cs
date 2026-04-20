@@ -1,4 +1,5 @@
 using System.Text.Json;
+using chronos.shared.messaging.rabbit_mq.AlternateExchange;
 using chronos.shared.messaging.rabbit_mq.Connections;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -16,10 +17,12 @@ internal sealed class RabbitMqConsumer<TMessage> : IHostedService where TMessage
     private readonly IMessagesRouteRegistry _messagesRouteRegistry;
     private readonly IConsumingNameConvention _convention;
     private readonly Func<TMessage, CancellationToken, string?, Task> _handle;
+    private readonly bool _messageAutoConfirm;
 
     public RabbitMqConsumer(
         IServiceProvider serviceProvider,
-        Func<TMessage, CancellationToken, string?, Task> handle)
+        Func<TMessage, CancellationToken, string?, Task> handle,
+        bool autoConfirm = false)
     {
         _scope = serviceProvider.CreateScope();
         _logger = _scope.ServiceProvider.GetRequiredService<ILogger<RabbitMqConsumer<TMessage>>>();
@@ -27,6 +30,7 @@ internal sealed class RabbitMqConsumer<TMessage> : IHostedService where TMessage
         _messagesRouteRegistry = _scope.ServiceProvider.GetRequiredService<IMessagesRouteRegistry>();
         _convention = _scope.ServiceProvider.GetRequiredService<IConsumingNameConvention>();
         _handle = handle;
+        _messageAutoConfirm = autoConfirm;
     }
 
     public async Task StartAsync(CancellationToken cancellationToken)
@@ -34,18 +38,18 @@ internal sealed class RabbitMqConsumer<TMessage> : IHostedService where TMessage
         var channel = _rabbitMqChannelFactory.ConsumerChannel;
         var consumer = new AsyncEventingBasicConsumer(channel);
 
-        var (Exchange, _, RoutingKeys, IsTemporary) = _messagesRouteRegistry.GetRoute<TMessage>();
+        var (exchange, _, routingKeys, isTemporary) = _messagesRouteRegistry.GetRoute<TMessage>();
         
-        var queue = IsTemporary 
+        var queue = isTemporary 
             ? _convention.GetTemporaryQueueName<TMessage>()
             : _convention.GetQueueName<TMessage>();
         
         await InitializeTopology(
             channel,
-            Exchange,
+            exchange,
             queue,
-            IsTemporary,
-            RoutingKeys,
+            isTemporary,
+            routingKeys,
             cancellationToken);
         
         consumer.ReceivedAsync += async (sender, ea) =>
@@ -69,18 +73,21 @@ internal sealed class RabbitMqConsumer<TMessage> : IHostedService where TMessage
                 return;
             }
             
-            await channel.BasicAckAsync(ea.DeliveryTag, false, ea.CancellationToken);
+            await channel.BasicAckAsync(
+                deliveryTag: ea.DeliveryTag,
+                multiple: false,
+                cancellationToken: ea.CancellationToken);
         };
         
         _ = await channel.BasicConsumeAsync(
             queue: queue,
-            autoAck:false,
+            autoAck: _messageAutoConfirm,
             consumerTag: "",
-            noLocal:false,
-            exclusive:false,
-            consumer:consumer,
+            noLocal: false,
+            exclusive: false,
+            consumer: consumer,
             cancellationToken: cancellationToken,
-            arguments:null);
+            arguments: null);
         
         _logger.LogInformation($"Consumer for {typeof(TMessage)} started");
     }
@@ -93,11 +100,26 @@ internal sealed class RabbitMqConsumer<TMessage> : IHostedService where TMessage
         List<string> routingKeys,
         CancellationToken cancellationToken = default)
     {
+        var arguments = new Dictionary<string, object?>();
+        
+#pragma warning disable CS0162 // Unreachable code detected
+        //At this moment we don't need to declare alternate exchange
+        if (false)
+        {
+            AlternateExchangeSetup.AddAlternateExchangeArgument(arguments);
+
+            await AlternateExchangeSetup.DeclareAlternateExchangeAsync(
+                channel,
+                cancellationToken);
+        }
+#pragma warning restore CS0162 // Unreachable code detected
+
         await channel.ExchangeDeclareAsync(
             exchange: exchange,
             type: ExchangeType.Direct,
             durable: true,
             autoDelete: false,
+            arguments: arguments,
             cancellationToken: cancellationToken);
         
         await channel.QueueDeclareAsync(

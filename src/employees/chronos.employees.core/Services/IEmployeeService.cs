@@ -1,9 +1,9 @@
 using chronos.employees.core.DAL;
 using chronos.employees.core.Domain;
-using chronos.employees.core.Domain.Identifiers;
 using chronos.employees.core.Domain.ValueObjects;
 using chronos.employees.core.Events;
 using chronos.shared.kernel.Exceptions;
+using chronos.shared.kernel.Identifiers;
 using chronos.shared.messaging;
 using Microsoft.EntityFrameworkCore;
 

@@ -8,7 +8,6 @@ namespace chronos.contracts.core.DTOs.Responses;
 /// <param name="AssignmentPeriod">The assignment period details.</param>
 /// <param name="AllocatedHours">The number of allocated hours.</param>
 public sealed record ContractEmployeeResponseDto(
-    string Id,
     string EmployeeId,
     AssignmentPeriodResponseDto AssignmentPeriod,
     int AllocatedHours);

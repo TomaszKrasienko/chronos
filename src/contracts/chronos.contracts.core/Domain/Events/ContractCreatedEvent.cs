@@ -1,5 +1,5 @@
-using chronos.contracts.core.Domain.Identifiers;
 using chronos.shared.kernel;
+using chronos.shared.kernel.Identifiers;
 
 namespace chronos.contracts.core.Domain.Events;
 

@@ -1,5 +1,5 @@
 using chronos.contracts.core.Domain;
-using chronos.contracts.core.Domain.Identifiers;
+using chronos.shared.kernel.Identifiers;
 using Microsoft.EntityFrameworkCore;
 
 namespace chronos.contracts.core.DAL;
@@ -28,9 +28,9 @@ internal sealed class ContractsRepository(ContractsDbContext dbContext) : IContr
     }
 
     public async Task<IReadOnlyList<Contract>> GetByEmployeeIdAsync(
-        Ulid employeeId,
+        EmployeeId employeeId,
         CancellationToken cancellationToken = default)
         => await dbContext.Contracts
-            .Where(c => c.Employees.Any(e => e.EmployeeId == employeeId))
+            .Where(c => c.Employees.Any(e => e.Id == employeeId))
             .ToListAsync(cancellationToken);
 }

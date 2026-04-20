@@ -1,5 +1,6 @@
 using System.Net;
 using chronos.shared.kernel.Exceptions;
+using chronos.shared.kernel.Identifiers;
 using Refit;
 
 namespace chronos.contracts.core.Communication.Sync.Http;
@@ -15,7 +16,7 @@ public interface IEmployeesClient
     /// <param name="employeeId">The unique identifier of the employee</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>True if the employee exists, otherwise false</returns>
-    Task<bool> DoesEmployeeExistAsync(Ulid employeeId, CancellationToken cancellationToken = default);
+    Task<bool> DoesEmployeeExistAsync(EmployeeId employeeId, CancellationToken cancellationToken = default);
 }
 
 /// <summary>
@@ -33,9 +34,9 @@ public interface IEmployeeHttpClient
 internal sealed class EmployeesClient(IEmployeeHttpClient httpClient) : IEmployeesClient
 {
     /// <inheritdoc />
-    public async Task<bool> DoesEmployeeExistAsync(Ulid employeeId, CancellationToken cancellationToken = default)
+    public async Task<bool> DoesEmployeeExistAsync(EmployeeId employeeId, CancellationToken cancellationToken = default)
     {
-        var response = await httpClient.GetByIdAsync(employeeId, cancellationToken);
+        var response = await httpClient.GetByIdAsync(employeeId.Value, cancellationToken);
 
         return response.StatusCode switch
         {

@@ -1,44 +1,71 @@
+using chronos.shared.kernel;
+using chronos.shared.kernel.Identifiers;
+
 namespace chronos.notifications.core.Domain;
 
-public sealed class NotificationMessage
+/// <summary>
+/// Entity representing a notification message within a contact.
+/// </summary>
+public sealed class NotificationMessage : Entity<NotificationMessageId>
 {
-    public Ulid Id { get; }
-    public Ulid EmployeeId { get; }
-    public string Topic { get; }
-    public string Message { get; }
-    public DateTimeOffset CreatedAt { get; }
+    /// <summary>
+    /// Gets the topic of the message.
+    /// </summary>
+    public string Topic { get; private set; }
+
+    /// <summary>
+    /// Gets the message content.
+    /// </summary>
+    public string Message { get; private set; }
+
+    /// <summary>
+    /// Gets the creation timestamp.
+    /// </summary>
+    public DateTimeOffset CreatedAt { get; private set; }
+
+    /// <summary>
+    /// Gets the read timestamp, if the message has been read.
+    /// </summary>
     public DateTimeOffset? ReadAt { get; private set; }
 
+#pragma warning disable CS8618
+    private NotificationMessage()
+    {
+    }
+#pragma warning restore CS8618
+
     private NotificationMessage(
-        Ulid id,
-        Ulid employeeId,
+        NotificationMessageId id,
         string topic,
         string message,
-        DateTimeOffset createdAt,
-        DateTimeOffset? readAt)
+        DateTimeOffset createdAt) : base(id)
     {
-        Id = id;
-        EmployeeId = employeeId;
         Topic = topic;
         Message = message;
         CreatedAt = createdAt;
-        ReadAt = readAt;
     }
 
-    public static NotificationMessage Create(
-        Ulid id,
-        Ulid employeeId,
+    /// <summary>
+    /// Creates a new notification message.
+    /// </summary>
+    /// <param name="topic">The topic of the message.</param>
+    /// <param name="message">The message content.</param>
+    /// <param name="timeProvider">The time provider.</param>
+    /// <returns>A new notification message.</returns>
+    internal static NotificationMessage Create(
         string topic,
         string message,
         TimeProvider timeProvider)
-        => new NotificationMessage(
-            id,
-            employeeId,
+        => new(
+            NotificationMessageId.New(),
             topic,
             message,
-            timeProvider.GetUtcNow(),
-            null);
+            timeProvider.GetUtcNow());
 
-    public void MarkAsRead(TimeProvider timeProvider)
+    /// <summary>
+    /// Marks the message as read.
+    /// </summary>
+    /// <param name="timeProvider">The time provider.</param>
+    internal void MarkAsRead(TimeProvider timeProvider)
         => ReadAt = timeProvider.GetUtcNow();
 }

@@ -2,21 +2,32 @@ using chronos.shared.kernel.Identifiers;
 using chronos.time_logs.core.Domain;
 using chronos.time_logs.core.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MongoDB.EntityFrameworkCore.Extensions;
 
 namespace chronos.time_logs.core.DAL;
 
-internal sealed class TimeLogsDbContext(
-    DbContextOptions<TimeLogsDbContext> options) : DbContext(options)
+internal sealed class TimeLogsDbContext : DbContext
 {
     public DbSet<MonthlyTimeReport> MonthlyTimeReports { get; set; }
 
+    public TimeLogsDbContext(DbContextOptions<TimeLogsDbContext> options) : base(options)
+    {
+        // Disable transactions for standalone MongoDB (no replica set)
+        Database.AutoTransactionBehavior = AutoTransactionBehavior.Never;
+    }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        var ulidConverter = new ValueConverter<Ulid, string>(
-            v => v.ToString(),
-            v => Ulid.Parse(v));
+        var employeeIdConverter = new ValueConverter<EmployeeId, string>(
+            v => v.Value.ToString(),
+            v => new EmployeeId(Ulid.Parse(v)));
+
+        var contractIdConverter = new ValueConverter<ContractId, string>(
+            v => v.Value.ToString(),
+            v => new ContractId(Ulid.Parse(v)));
 
         var monthlyTimeReportIdConverter = new ValueConverter<MonthlyTimeReportId, string>(
             v => v.Value.ToString(),
@@ -26,13 +37,9 @@ internal sealed class TimeLogsDbContext(
             v => v.Value.ToString(),
             v => new TimeLogId(Ulid.Parse(v)));
 
-        var loggedHoursConverter = new ValueConverter<LoggedHours, long>(
+        var loggedTimeConverter = new ValueConverter<LoggedTime, long>(
             v => v.Value.Ticks,
-            v => LoggedHours.Create(TimeSpan.FromTicks(v)));
-
-        var reportPeriodMonthConverter = new ValueConverter<ReportPeriod, int>(
-            v => v.Month + v.Year * 100,
-            v => ReportPeriod.Create(v % 100, v / 100));
+            v => LoggedTime.Create(TimeSpan.FromTicks(v)));
 
         // MonthlyTimeReport configuration
         modelBuilder
@@ -54,7 +61,7 @@ internal sealed class TimeLogsDbContext(
             .Property(x => x.EmployeeId)
             .IsRequired()
             .HasElementName("EmployeeId")
-            .HasConversion(ulidConverter);
+            .HasConversion(employeeIdConverter);
 
         modelBuilder
             .Entity<MonthlyTimeReport>()
@@ -64,42 +71,116 @@ internal sealed class TimeLogsDbContext(
                 period.Property(p => p.Year).HasElementName("Year");
             });
 
-        // TimeLog hierarchy configuration with discriminator
+        // PendingTimeLogs - embedded collection
         modelBuilder
             .Entity<MonthlyTimeReport>()
-            .OwnsMany(x => x.TimeLogs, timeLog =>
+            .OwnsMany(x => x.PendingTimeLogs, pending =>
             {
-                timeLog.HasKey(t => t.Id);
+                pending.HasElementName("PendingTimeLogs");
+                ConfigureTimeLogBase(
+                    pending,
+                    timeLogIdConverter,
+                    employeeIdConverter,
+                    contractIdConverter,
+                    loggedTimeConverter);
 
-                timeLog.Property(t => t.Id)
-                    .HasElementName("_id")
-                    .HasConversion(timeLogIdConverter);
-
-                timeLog.Property(t => t.EmployeeId)
-                    .IsRequired()
-                    .HasElementName("EmployeeId")
-                    .HasConversion(ulidConverter);
-
-                timeLog.Property(t => t.ContractId)
-                    .IsRequired()
-                    .HasElementName("ContractId")
-                    .HasConversion(ulidConverter);
-
-                timeLog.Property(t => t.Hours)
-                    .IsRequired()
-                    .HasElementName("Hours")
-                    .HasConversion(loggedHoursConverter);
-
-                timeLog.Property(t => t.Topic)
-                    .IsRequired()
-                    .HasElementName("Topic");
-
-                timeLog.Property(t => t.Notes)
-                    .HasElementName("Notes");
-
-                timeLog.Property(t => t.CreatedAt)
-                    .IsRequired()
-                    .HasElementName("CreatedAt");
+                pending
+                    .Property(x => x.SupervisorId)
+                    .HasElementName("SupervisorId")
+                    .HasConversion(employeeIdConverter);
             });
+
+        // AcceptedTimeLogs - embedded collection
+        modelBuilder
+            .Entity<MonthlyTimeReport>()
+            .OwnsMany(x => x.AcceptedTimeLogs, accepted =>
+            {
+                accepted.HasElementName("AcceptedTimeLogs");
+                ConfigureTimeLogBase(
+                    accepted,
+                    timeLogIdConverter,
+                    employeeIdConverter,
+                    contractIdConverter,
+                    loggedTimeConverter);
+
+                accepted
+                    .Property(x => x.AcceptedBy)
+                    .HasElementName("AcceptedBy");
+
+                accepted
+                    .Property(x => x.AcceptedAt)
+                    .HasElementName("AcceptedAt");
+            });
+
+        // RejectedTimeLogs - embedded collection
+        modelBuilder
+            .Entity<MonthlyTimeReport>()
+            .OwnsMany(x => x.RejectedTimeLogs, rejected =>
+            {
+                rejected.HasElementName("RejectedTimeLogs");
+                ConfigureTimeLogBase(
+                    rejected,
+                    timeLogIdConverter,
+                    employeeIdConverter,
+                    contractIdConverter,
+                    loggedTimeConverter);
+
+                rejected
+                    .Property(x => x.Reason)
+                    .HasElementName("Reason");
+
+                rejected
+                    .Property(x => x.RejectedBy)
+                    .HasElementName("RejectedBy");
+
+                rejected
+                    .Property(x => x.RejectedAt)
+                    .HasElementName("RejectedAt");
+            });
+
+        modelBuilder
+            .Entity<MonthlyTimeReport>()
+            .Ignore(x => x.TimeLogs);
+    }
+
+    private static void ConfigureTimeLogBase<TTimeLog>(
+        OwnedNavigationBuilder<MonthlyTimeReport, TTimeLog> builder,
+        ValueConverter<TimeLogId, string> timeLogIdConverter,
+        ValueConverter<EmployeeId, string> employeeIdConverter,
+        ValueConverter<ContractId, string> contractIdConverter,
+        ValueConverter<LoggedTime, long> loggedTimeConverter)
+        where TTimeLog : TimeLog
+    {
+        builder
+            .Property(x => x.Id)
+            .HasElementName("Id")
+            .HasConversion(timeLogIdConverter);
+
+        builder
+            .Property(x => x.EmployeeId)
+            .HasElementName("EmployeeId")
+            .HasConversion(employeeIdConverter);
+
+        builder
+            .Property(x => x.ContractId)
+            .HasElementName("ContractId")
+            .HasConversion(contractIdConverter);
+
+        builder
+            .Property(x => x.Time)
+            .HasElementName("Time")
+            .HasConversion(loggedTimeConverter);
+
+        builder
+            .Property(x => x.Topic)
+            .HasElementName("Topic");
+
+        builder
+            .Property(x => x.Notes)
+            .HasElementName("Notes");
+
+        builder
+            .Property(x => x.CreatedAt)
+            .HasElementName("CreatedAt");
     }
 }

@@ -44,6 +44,18 @@ internal static class CommunicationRabbitMqServicesExtensions
             };
         });
 
+        services.AddConsumer<TimeLogWaitingForAcceptationCreated>(sp =>
+        {
+            return async (msg, ct, _) =>
+            {
+                using var scope = sp.CreateScope();
+                var handler = scope.ServiceProvider.GetRequiredService<ITimeLogWaitingForAcceptationCreatedEventHandler>();
+                await handler.HandleAsync(msg, ct);
+            };
+        });
+
+        services.AddOutbox(configuration);
+
         return services;
     }
 }

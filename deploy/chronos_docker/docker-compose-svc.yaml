@@ -5,112 +5,132 @@ services:
     platform: linux/amd64
     ports:
       - 11001:8080
-      - 11002:8081
     environment:
       ASPNETCORE_ENVIRONMENT: ${DOTNET_ENVIRONMENT}
-      # Kestrel
-      Kestrel__Endpoints__Http__Url: ${EMPLOYEES_KESTREL_HTTP_URL}
-      Kestrel__Endpoints__Http__Protocols: Http1
-      Kestrel__Endpoints__Grpc__Url: ${EMPLOYEES_KESTREL_GRPC_URL}
-      Kestrel__Endpoints__Grpc__Protocols: Http2
-      # DalOptions
       DalOptions__ConnectionString: ${EMPLOYEES_DAL_OPTIONS_CONNECTION_STRING}
       DalOptions__DatabaseName: ${EMPLOYEES_DAL_OPTIONS_DATABASE_NAME}
-      # GrpcCommunicationOptions
-      GrpcCommunicationOptions__Enabled: ${EMPLOYEES_GRPC_COMMUNICATION_OPTIONS_ENABLED}
-      # RabbitMqOptions
       RabbitMqOptions__HostName: ${EMPLOYEES_RABBIT_MQ_HOSTNAME}
       RabbitMqOptions__Port: ${EMPLOYEES_RABBIT_MQ_PORT}
       RabbitMqOptions__Username: ${EMPLOYEES_RABBIT_MQ_USERNAME}
       RabbitMqOptions__Password: ${EMPLOYEES_RABBIT_MQ_PASSWORD}
       RabbitMqOptions__VirtualHost: ${EMPLOYEES_RABBIT_MQ_VIRTUAL_HOST}
+      OutboxOptions__ConnectionString: ${EMPLOYEES_OUTBOX_CONNECTION_STRING}
     networks:
       - chronos-network
 
-  chronos-notifications:
-    container_name: chronos_svc_notifications
-    image: chronos/notifications:latest
+  chronos-contracts:
+    container_name: chronos_svc_contracts
+    image: chronos/contracts:latest
     platform: linux/amd64
     ports:
-      - 11003:8080
+      - 11002:8080
     environment:
       ASPNETCORE_ENVIRONMENT: ${DOTNET_ENVIRONMENT}
-      # Kestrel
-      Kestrel__Endpoints__Http__Url: ${NOTIFICATIONS_KESTREL_HTTP_URL}
-      Kestrel__Endpoints__Http__Protocols: Http1
-      Kestrel__Endpoints__Grpc__Url: ${NOTIFICATIONS_KESTREL_GRPC_URL}
-      Kestrel__Endpoints__Grpc__Protocols: Http2
-      # DalOptions
-      DalOptions__ConnectionString: ${NOTIFICATIONS_DAL_OPTIONS_CONNECTION_STRING}
-      DalOptions__DatabaseName: ${NOTIFICATIONS_DAL_OPTIONS_DATABASE_NAME}
-      # GrpcCommunicationOptions
-      GrpcCommunicationOptions__Enabled: ${NOTIFICATIONS_GRPC_COMMUNICATION_OPTIONS_ENABLED}
-      # RabbitMqOptions
-      RabbitMqOptions__HostName: ${NOTIFICATIONS_RABBIT_MQ_HOSTNAME}
-      RabbitMqOptions__Port: ${NOTIFICATIONS_RABBIT_MQ_PORT}
-      RabbitMqOptions__Username: ${NOTIFICATIONS_RABBIT_MQ_USERNAME}
-      RabbitMqOptions__Password: ${NOTIFICATIONS_RABBIT_MQ_PASSWORD}
-      RabbitMqOptions__VirtualHost: ${NOTIFICATIONS_RABBIT_MQ_VIRTUAL_HOST}
+      DalOptions__ConnectionString: ${CONTRACTS_DAL_OPTIONS_CONNECTION_STRING}
+      DalOptions__DatabaseName: ${CONTRACTS_DAL_OPTIONS_DATABASE_NAME}
+      RabbitMqOptions__HostName: ${CONTRACTS_RABBIT_MQ_HOSTNAME}
+      RabbitMqOptions__Port: ${CONTRACTS_RABBIT_MQ_PORT}
+      RabbitMqOptions__Username: ${CONTRACTS_RABBIT_MQ_USERNAME}
+      RabbitMqOptions__Password: ${CONTRACTS_RABBIT_MQ_PASSWORD}
+      RabbitMqOptions__VirtualHost: ${CONTRACTS_RABBIT_MQ_VIRTUAL_HOST}
+      HttpEmployeeOptions__Url: ${CONTRACTS_HTTP_EMPLOYEE_OPTIONS_URL}
+      OutboxOptions__ConnectionString: ${CONTRACTS_OUTBOX_CONNECTION_STRING}
     networks:
       - chronos-network
 
-  chronos-time-loggers:
-    container_name: chronos_svc_time_loggers
-    image: chronos/time-loggers:latest
+  chronos-time-logs:
+    container_name: chronos_svc_time_logs
+    image: chronos/time-logs:latest
     platform: linux/amd64
     ports:
       - 11004:8080
-      - 11005:8081
     environment:
       ASPNETCORE_ENVIRONMENT: ${DOTNET_ENVIRONMENT}
-      # Kestrel
-      Kestrel__Endpoints__Http__Url: ${TIME_LOGGERS_KESTREL_HTTP_URL}
-      Kestrel__Endpoints__Http__Protocols: Http1
-      Kestrel__Endpoints__Grpc__Url: ${TIME_LOGGERS_KESTREL_GRPC_URL}
-      Kestrel__Endpoints__Grpc__Protocols: Http2
-      # DalOptions
-      DalOptions__ConnectionString: ${TIME_LOGGERS_DAL_OPTIONS_CONNECTION_STRING}
-      DalOptions__DatabaseName: ${TIME_LOGGERS_DAL_OPTIONS_DATABASE_NAME}
-      # GrpcCommunicationOptions
-      GrpcCommunicationOptions__Enabled: ${TIME_LOGGERS_GRPC_COMMUNICATION_OPTIONS_ENABLED}
-      # HttpCommunicationOptions
-      HttpCommunicationOptions__Enabled: ${TIME_LOGGERS_HTTP_COMMUNICATION_OPTIONS_ENABLED}
-      HttpCommunicationOptions__Clients__0__Name: ${TIME_LOGGERS_HTTP_COMMUNICATION_OPTIONS_CLIENTS_0_NAME}
-      HttpCommunicationOptions__Clients__0__Uri: ${TIME_LOGGERS_HTTP_COMMUNICATION_OPTIONS_CLIENTS_0_URI}
-      # RabbitMqOptions
-      RabbitMqOptions__HostName: ${TIME_LOGGERS_RABBIT_MQ_HOSTNAME}
-      RabbitMqOptions__Port: ${TIME_LOGGERS_RABBIT_MQ_PORT}
-      RabbitMqOptions__Username: ${TIME_LOGGERS_RABBIT_MQ_USERNAME}
-      RabbitMqOptions__Password: ${TIME_LOGGERS_RABBIT_MQ_PASSWORD}
-      RabbitMqOptions__VirtualHost: ${TIME_LOGGERS_RABBIT_MQ_VIRTUAL_HOST}
+      DalOptions__ConnectionString: ${TIME_LOGS_DAL_OPTIONS_CONNECTION_STRING}
+      DalOptions__DatabaseName: ${TIME_LOGS_DAL_OPTIONS_DATABASE_NAME}
+      RabbitMqOptions__HostName: ${TIME_LOGS_RABBIT_MQ_HOSTNAME}
+      RabbitMqOptions__Port: ${TIME_LOGS_RABBIT_MQ_PORT}
+      RabbitMqOptions__Username: ${TIME_LOGS_RABBIT_MQ_USERNAME}
+      RabbitMqOptions__Password: ${TIME_LOGS_RABBIT_MQ_PASSWORD}
+      RabbitMqOptions__VirtualHost: ${TIME_LOGS_RABBIT_MQ_VIRTUAL_HOST}
+      HttpCommunicationOptions__Enabled: ${TIME_LOGS_HTTP_COMMUNICATION_OPTIONS_ENABLED}
+      HttpCommunicationOptions__Clients__0__Name: HttpEmployeesClient
+      HttpCommunicationOptions__Clients__0__Uri: http://chronos_svc_employees:8080
+      HttpCommunicationOptions__Clients__1__Name: HttpContractsClient
+      HttpCommunicationOptions__Clients__1__Uri: http://chronos_svc_contracts:8080
+      OutboxOptions__ConnectionString: ${TIME_LOGS_OUTBOX_CONNECTION_STRING}
     networks:
       - chronos-network
-    depends_on:
-      - chronos-employee
 
-  chronos-time-reports:
-    container_name: chronos_svc_time_reports
-    image: chronos/time-reports:latest
+  chronos-reverse-proxy:
+    container_name: chronos_svc_reverse_proxy
+    image: chronos/reverse-proxy:latest
     platform: linux/amd64
     ports:
-      - 11006:8080
+      - 10000:8080
     environment:
       ASPNETCORE_ENVIRONMENT: ${DOTNET_ENVIRONMENT}
-      # Kestrel
-      Kestrel__Endpoints__Http__Url: ${TIME_REPORTS_KESTREL_HTTP_URL}
-      Kestrel__Endpoints__Http__Protocols: Http1
-      # DalOptions
-      DalOptions__ConnectionString: ${TIME_REPORTS_DAL_OPTIONS_CONNECTION_STRING}
-      DalOptions__DatabaseName: ${TIME_REPORTS_DAL_OPTIONS_DATABASE_NAME}
-      # RabbitMqOptions
-      RabbitMqOptions__HostName: ${TIME_REPORTS_RABBIT_MQ_HOSTNAME}
-      RabbitMqOptions__Port: ${TIME_REPORTS_RABBIT_MQ_PORT}
-      RabbitMqOptions__Username: ${TIME_REPORTS_RABBIT_MQ_USERNAME}
-      RabbitMqOptions__Password: ${TIME_REPORTS_RABBIT_MQ_PASSWORD}
-      RabbitMqOptions__VirtualHost: ${TIME_REPORTS_RABBIT_MQ_VIRTUAL_HOST}
+      ReverseProxy__Clusters__employees-cluster__Destinations__destination1__Address: http://chronos_svc_employees:8080
+      ReverseProxy__Clusters__contracts-cluster__Destinations__destination1__Address: http://chronos_svc_contracts:8080
+      ReverseProxy__Clusters__time-logs-cluster__Destinations__destination1__Address: http://chronos_svc_time_logs:8080
+    depends_on:
+      - chronos-employee
+      - chronos-contracts
+      - chronos-time-logs
     networks:
       - chronos-network
+
+  # chronos-notifications:
+  #   container_name: chronos_svc_notifications
+  #   image: chronos/notifications:latest
+  #   platform: linux/amd64
+  #   ports:
+  #     - 11003:8080
+  #   environment:
+  #     ASPNETCORE_ENVIRONMENT: ${DOTNET_ENVIRONMENT}
+  #     # Kestrel
+  #     Kestrel__Endpoints__Http__Url: ${NOTIFICATIONS_KESTREL_HTTP_URL}
+  #     Kestrel__Endpoints__Http__Protocols: Http1
+  #     Kestrel__Endpoints__Grpc__Url: ${NOTIFICATIONS_KESTREL_GRPC_URL}
+  #     Kestrel__Endpoints__Grpc__Protocols: Http2
+  #     # DalOptions
+  #     DalOptions__ConnectionString: ${NOTIFICATIONS_DAL_OPTIONS_CONNECTION_STRING}
+  #     DalOptions__DatabaseName: ${NOTIFICATIONS_DAL_OPTIONS_DATABASE_NAME}
+  #     # GrpcCommunicationOptions
+  #     GrpcCommunicationOptions__Enabled: ${NOTIFICATIONS_GRPC_COMMUNICATION_OPTIONS_ENABLED}
+  #     # RabbitMqOptions
+  #     RabbitMqOptions__HostName: ${NOTIFICATIONS_RABBIT_MQ_HOSTNAME}
+  #     RabbitMqOptions__Port: ${NOTIFICATIONS_RABBIT_MQ_PORT}
+  #     RabbitMqOptions__Username: ${NOTIFICATIONS_RABBIT_MQ_USERNAME}
+  #     RabbitMqOptions__Password: ${NOTIFICATIONS_RABBIT_MQ_PASSWORD}
+  #     RabbitMqOptions__VirtualHost: ${NOTIFICATIONS_RABBIT_MQ_VIRTUAL_HOST}
+  #   networks:
+  #     - chronos-network
+
+  # chronos-time-reports:
+  #   container_name: chronos_svc_time_reports
+  #   image: chronos/time-reports:latest
+  #   platform: linux/amd64
+  #   ports:
+  #     - 11006:8080
+  #   environment:
+  #     ASPNETCORE_ENVIRONMENT: ${DOTNET_ENVIRONMENT}
+  #     # Kestrel
+  #     Kestrel__Endpoints__Http__Url: ${TIME_REPORTS_KESTREL_HTTP_URL}
+  #     Kestrel__Endpoints__Http__Protocols: Http1
+  #     # DalOptions
+  #     DalOptions__ConnectionString: ${TIME_REPORTS_DAL_OPTIONS_CONNECTION_STRING}
+  #     DalOptions__DatabaseName: ${TIME_REPORTS_DAL_OPTIONS_DATABASE_NAME}
+  #     # RabbitMqOptions
+  #     RabbitMqOptions__HostName: ${TIME_REPORTS_RABBIT_MQ_HOSTNAME}
+  #     RabbitMqOptions__Port: ${TIME_REPORTS_RABBIT_MQ_PORT}
+  #     RabbitMqOptions__Username: ${TIME_REPORTS_RABBIT_MQ_USERNAME}
+  #     RabbitMqOptions__Password: ${TIME_REPORTS_RABBIT_MQ_PASSWORD}
+  #     RabbitMqOptions__VirtualHost: ${TIME_REPORTS_RABBIT_MQ_VIRTUAL_HOST}
+  #   networks:
+  #     - chronos-network
 
 networks:
   chronos-network:
-    driver: bridge
+    external: true
+    name: chronos_docker_chronos-network
